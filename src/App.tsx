@@ -21,12 +21,12 @@ function App() {
 
   const loginUser = async (email: string | undefined, password: string | undefined) => {
     try {
-      if (email && password) {
+      if (email && password) { // mock log in
         const response = await fetch(`/data/${email}|${password}.json`);
         if (!response.ok) throw new Error(response.statusText);
         const json = await response.json();
         setUser(json);
-      } else {
+      } else { // mock log out
         setUser({firstName: "Site", lastName: "User"});
       }
     } catch (error: unknown) {
@@ -37,6 +37,7 @@ function App() {
 
   useEffect(() => {
       //server session should be checked - AS IF IT WERE DONE and user data is obtained upon successfull login
+      
       
   }, [])
 
