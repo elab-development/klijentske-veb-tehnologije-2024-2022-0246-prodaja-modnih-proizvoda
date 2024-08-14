@@ -1,0 +1,30 @@
+#footer {
+    color: white;
+    width: 100%;
+    max-width: 1440px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-evenly;
+    /* height: 350px; */
+}
+
+#footer div {
+    padding: 60px 40px;
+    font-family: "Maven Pro", sans-serif;
+    font-optical-sizing: auto;
+    font-size: larger;
+}
+
+#footer p {
+    margin: 3px;
+}
+
+#footer h1 {
+    font-size: 5vh;
+    margin-top: 0.45em;
+}
+
+#footer h2 {
+    margin-bottom: 5px;
+}
