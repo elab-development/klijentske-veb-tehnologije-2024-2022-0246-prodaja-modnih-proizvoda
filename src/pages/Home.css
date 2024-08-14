@@ -1,0 +1,95 @@
+#home {
+    background: white;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 1440px;
+}
+
+#prva {
+    background: white url('/img/home1.jpg');
+    opacity: 0.9;
+    transform: matrix(-1, 0, 0, 1, 0, 0);
+    background-position: 40% 30%;
+    width: 100%;
+    height: 100vh;
+}
+
+#druga {
+    background: white url('/img/home2.jpg');
+    background-position: 0% 30%;
+    background-size: 100% 100%;
+    margin-top: 8vh;
+    width: 100%;
+    aspect-ratio: 144/73;
+    position: relative;
+}
+
+#drugatekst {
+    position: absolute;
+    left: 4%;
+    top: 19%;
+    color: white;
+    font-family: "Montserrat", sans-serif;
+    font-size: 5.5vmin;
+    font-weight: 700;
+}
+
+#collection-link {
+    position: absolute;
+    left: 4%;
+    bottom: 10%;
+    display: block;
+    background: white;
+    border-radius: 0.5vmax;
+    padding: 1vh 4vh;
+    color: black;
+    font-family: "Montserrat", sans-serif;
+    font-size: 3vmin;
+    font-weight: 700;
+}
+
+#product-link {
+    position: absolute;
+    right: 2%;
+    top: 30%;
+    display: block;
+    background: transparent;
+    border-radius: 0.5vmax;
+    padding: 0;
+    color: black;
+    font-family: "Montserrat", sans-serif;
+    font-size: 3vmin;
+    font-weight: 700;
+}
+
+#prep-pro {
+    background: white;
+    /* height: 60vh; for now */
+    padding: 8vh;
+}
+
+#prep-pro span {
+    font-size: 4.5vmin;
+    font-weight: bold;
+    color: black;
+}
+
+#prep-grid {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+@media screen and (max-width: 768px) {
+    #header {
+        flex-direction: column;
+    }
+    #product-link {
+        top: 70%;
+    }
+    #header .logo img {
+        width: 210px;
+    }
+}
