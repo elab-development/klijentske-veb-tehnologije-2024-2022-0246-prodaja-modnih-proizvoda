@@ -6,9 +6,10 @@ import { User } from '../models/userModel'
 
 interface LayoutProps {
     user: User | Record<string, never>;
+    loginUser: (email?: string | undefined, password?: string | undefined) => void;
 }
 
-const Layout = (props: LayoutProps) => {
+const Layout = ({user, loginUser}: LayoutProps) => {
     
 
     // Header CSS settings according to URL: different CSS position and background color for home page pathname /
@@ -17,7 +18,7 @@ const Layout = (props: LayoutProps) => {
     const color : React.CSSProperties["backgroundColor"] = location.pathname === '/' ? 'transparent' : "#DED5CE"
     return (
         <div className="content">
-            <Header position={pos} backgroundColor={color} user={ props.user } />
+            <Header position={pos} backgroundColor={color} user={ user } loginUser={loginUser} />
             <Outlet />
             <Footer />
         </div>

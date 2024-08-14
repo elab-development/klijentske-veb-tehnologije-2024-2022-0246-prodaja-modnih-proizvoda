@@ -19,9 +19,25 @@ function App() {
   //const [cartProducts, setCartProducts] = useState<Product[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
 
+  const loginUser = async (email: string | undefined, password: string | undefined) => {
+    try {
+      if (email && password) {
+        const response = await fetch(`/data/${email}|${password}.json`);
+        if (!response.ok) throw new Error(response.statusText);
+        const json = await response.json();
+        setUser(json);
+      } else {
+        setUser({firstName: "Site", lastName: "User"});
+      }
+    } catch (error: unknown) {
+      const err = error as Error;
+      alert('No matched user and password. Please try again. ' + err.message);
+    }
+  };
+
   useEffect(() => {
       //server session should be checked - AS IF IT WERE DONE and user data is obtained upon successfull login
-      setUser({firstName: "Site", lastName: "User"})
+      
   }, [])
 
   /* obtain products data needed on home and products pages */
@@ -35,8 +51,7 @@ function App() {
         setProducts(data.products.map((el: unknown) => {
           const elem = el as Product
           return new Product(elem.productid, elem.name, elem.description, elem.price, elem.image, elem.category, elem.recommended)
-      }))
-
+        }))
       }
       fetchData()
   },[])
@@ -44,11 +59,11 @@ function App() {
   /* router-enabled application skeleton: index marks default subpage loaded into the Layout page's Outlet router component for home page on path name / */
   const router = createBrowserRouter(
     createRoutesFromElements([
-      <Route path="/" element={<Layout user={user} />}>
+      <Route path="/" element={<Layout user={user} loginUser={loginUser}/>}>
         <Route index element={<Home products={products}/>} />
         <Route path="/products" element={<ProductsPage products={products}/>} />
         <Route path="/cart" element={<Cart />} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={<Login loginUser={loginUser}/>} />
         <Route path="*" element={<NoPage />} />
       </Route>
     ])
