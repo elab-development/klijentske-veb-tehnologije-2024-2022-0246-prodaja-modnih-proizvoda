@@ -1,0 +1,10 @@
+.by-categories {
+    display: flex;
+    width: 100%;
+    justify-content: space-evenly;
+    background: #BBA99A;
+    color: black;
+    font-weight: bold;
+    font-size: 1.2vw;
+    padding: 15px 0;
+}
