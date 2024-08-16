@@ -1,14 +1,17 @@
 import { MdMenu } from 'react-icons/md';
-import { Product } from '../models/productModel';
+import { EnumKeys, Product } from '../models/productModel';
 import './FilterByCategory.css'
 import { useEffect, useState } from 'react';
+import { FilterOperation } from '../pages/ProductsPage';
 
 interface FilterByCategoryProps {
     products: Product[];
     direction: React.CSSProperties["flexDirection"];
+    addToFilter: (prodProp: EnumKeys<Product>, prod: {operation: FilterOperation, values: string[] | number[]}) => void;
+    removeFromFilter: (prodProp: EnumKeys<Product>) => void;
 }
 
-const FilterByCategory: React.FC<FilterByCategoryProps> = ({products, direction}) => {
+const FilterByCategory: React.FC<FilterByCategoryProps> = ({products, direction, addToFilter, removeFromFilter}) => {
 
     // to be responsive on changes in categories
     const [uniqueCategories, setUniqueCategories] = useState<(string | undefined)[]>([]);
@@ -24,9 +27,9 @@ const FilterByCategory: React.FC<FilterByCategoryProps> = ({products, direction}
 
     return (
         <div className="by-categories" style={{flexDirection: direction, backgroundColor: direction === 'column' ? "transparent" : "#BBA99A"}}>
-            {direction !== 'column' && <div><MdMenu/></div>}
+            {direction !== 'column' && <div onClick={() => removeFromFilter('category')}><MdMenu/></div>}
             {uniqueCategories.map((categ) => (
-                <div key={categ}>{categ}</div>
+                <div key={categ} onClick={() => addToFilter("category", {operation: "eq", values: [categ as string]})}>{categ}</div>
             ))}
         </div>
     )

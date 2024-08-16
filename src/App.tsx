@@ -35,6 +35,15 @@ function App() {
     }
   };
 
+  const addToCart = () => {
+    //
+  }
+
+  // remove all sizes of product from cart
+  const removeProductFromCart = () => {
+    //
+  }
+
   useEffect(() => {
       //server session should be checked - AS IF IT WERE DONE and user data is obtained upon successfull login
       
@@ -62,7 +71,7 @@ function App() {
     createRoutesFromElements([
       <Route path="/" element={<Layout user={user} loginUser={loginUser}/>}>
         <Route index element={<Home products={products}/>} />
-        <Route path="/products" element={<ProductsPage products={products}/>} />
+        <Route path="/products" element={<ProductsPage products={products} onAdd={addToCart} onRemove={removeProductFromCart}/>} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/login" element={<Login loginUser={loginUser}/>} />
         <Route path="*" element={<NoPage />} />
