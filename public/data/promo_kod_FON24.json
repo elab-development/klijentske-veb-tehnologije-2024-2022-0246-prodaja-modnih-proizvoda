@@ -1,0 +1,7 @@
+{
+    "savings": {
+        "amount": 10,
+        "calculation": "percent",
+        "name": "FON24"
+    }
+}

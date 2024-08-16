@@ -71,6 +71,18 @@ a.user-link:hover {
     color: #DED5CE;
 }
 
+.badge {
+    color: white;
+    background: red;
+    border: 1px solid red;
+    padding: 2px 6px;
+    border-radius: 12px;
+    position: relative;
+    bottom: 4vh;
+    right: 10px;
+    font-size: 1.2vh;
+}
+
 @media screen and (max-width: 640px) {
     #header {
         flex-direction: column;
@@ -79,5 +91,9 @@ a.user-link:hover {
 
     #header logo {
         width: 125px;
+    }
+
+    .user {
+        flex-direction: column;
     }
 }

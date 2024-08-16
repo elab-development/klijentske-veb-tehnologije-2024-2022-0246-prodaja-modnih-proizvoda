@@ -3,6 +3,7 @@ interface HeaderProps {
     backgroundColor: React.CSSProperties["backgroundColor"]
     user: User | Record<string, never>,
     loginUser: (email?: string | undefined, password?: string | undefined) => void;
+    cartItemsCount: number;
 }
 
 import { Link } from 'react-router-dom'
@@ -13,7 +14,7 @@ import { MdOutlineFavorite, MdPerson, MdSearch, MdShoppingCart } from 'react-ico
 import React, { useState } from 'react';
 import { User } from '../models/userModel';
 
-const Header: React.FC<HeaderProps> = ({position, backgroundColor, user, loginUser}) => {
+const Header: React.FC<HeaderProps> = ({position, backgroundColor, user, loginUser, cartItemsCount}) => {
     const {firstName, lastName} = user;
     const initialSearchTxt = `Search, my dear ${firstName} ${lastName}...`;
     const [searchTxt, setSearchTxt] = useState('');
@@ -38,7 +39,7 @@ const Header: React.FC<HeaderProps> = ({position, backgroundColor, user, loginUs
                 
                 <div className="user">
                     <Link to="/user"><MdPerson /></Link>
-                    <Link to="/cart"><MdShoppingCart /></Link>
+                    <Link to="/cart"><MdShoppingCart />{ cartItemsCount.toString() !== "0" && <span className="badge">{cartItemsCount}</span> }</Link>
                     <Link to="/fav"><MdOutlineFavorite /></Link>
                     {user && user.firstName !== 'Site' && user.lastName !== 'User' ?
                     <button className="user-link" onClick={() => loginUser()}>Log out</button>
