@@ -8,3 +8,7 @@
     font-size: 1.2vw;
     padding: 15px 0;
 }
+
+.by-categories > div {
+    cursor: pointer; 
+}
