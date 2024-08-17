@@ -64,4 +64,8 @@ export class Product {
             alert("Amount of product is already 0.");
         }
     }
+
+    public removeFromCartAllSizes = () => {
+        Object.keys(this.amounts).forEach((size) => {this.amounts[size] = 0});
+    }
 }

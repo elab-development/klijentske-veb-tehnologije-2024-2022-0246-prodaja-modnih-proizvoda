@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import FilterByCategory from "../components/FilterByCategory";
 import ProductItem from "../components/ProductItem";
 import { EnumKeys, ObjectKeysFromEnum, Product } from "../models/productModel";
-
 import './ProductsPage.css';
+import { useLoaderData } from "react-router-dom";
+import Pagination from "../components/Pagination";
 
 export type FilterOperation = "eq" | "lt" | "le" | "gt" | "ge" | "in" | "bw";
 export type FilterData = ObjectKeysFromEnum<Product, {operation: FilterOperation, values: string[] | number[]}>
@@ -13,30 +14,45 @@ interface ProductPageProps {
     /* lifted-up properties to App */
     onAdd: (productId: number) => void;
     onRemove: (productId: number) => void;
+    acceptPage: (page: number, perPage?: number) => void;
+    currentPage: number;
+    perPage: number;
+    productsCount: number;
 }
 
 function ProductsPage(props: ProductPageProps) {
     const products = props.products;
-    
     /* add to cart and remove from cart */
     const onAdd = props.onAdd;
     const onRemove = props.onRemove;
+    // accept page in App
+    const acceptPage = props.acceptPage;
+    // accept page and perPage data from router's route loader
+    const loaderData = useLoaderData() as {page: number, perPage: number};
+    // send page and perPage data from route loader to App automatically 
+    useEffect(() => {
+        acceptPage(loaderData.page, loaderData.perPage);
+    }, [loaderData.page, loaderData.perPage, acceptPage])
 
-/* klijentsko filtriranje - u veb citacu - prikaza proizvoda na stranici */
-const [filter, setFilter] = useState<FilterData | undefined>(undefined); // client-side filter of a product page retrieved from server
-const [maxPrice, setMaxPrice] = useState(50);
-const [filteredProducts, setFilteredProducts] = useState(products);
-
+/* client-side filtering - in web browser - and update products page */
+const [filter, setFilter] = useState<FilterData | undefined>(undefined); // client-side filter of a product page
+const [maxPrice, setMaxPrice] = useState(50); // maxPrice to be included into a corresponding filter item
+const [filteredProducts, setFilteredProducts] = useState([]/*products*/); // products that are filtered to be displayed on products page
+const [selectedCat, setSelectedCat] = useState(''); // selected category for filter - to mark it in FilterByCategory component
+    // callback on max price range change
 const handleRangeChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
     const val = ev.target.value;
     setMaxPrice(Number(val));
-    // addFilter ovde umesto u posebnom useEffects, buduci da se samo ovde ocekuje izmena maxPrice, a addFilter se koristi i iz komponente FilterByCategories
+    // addFilter here instead of a separate useEffects, because maxPrice is expected to be changed only here, and addFilter is used from within FilterByCategories comp.
     addFilter("price", {operation: "le", values: [Number(val)]}); // val umesto maxPrice, jer ne stize da azurira interfejs prema novom maxPrice
 }
-
+// handle selectedCat change
+const handleCatChange = ( categ: string) => {
+    setSelectedCat(categ);
+}
+// add new item into filter - all filter items should be true on a specific product item to be filtered and displayed
 const addFilter = (prodProp: EnumKeys<Product>, prod: {operation: FilterOperation, values: string[] | number[]}) => {
     let filtNewItem : FilterData | undefined;
-
     if (filter !== undefined ) {
         filtNewItem = { ...filter, [prodProp]: prod};
     } else {
@@ -45,16 +61,16 @@ const addFilter = (prodProp: EnumKeys<Product>, prod: {operation: FilterOperatio
     setFilter(filtNewItem);
     console.log('filter', filter);
 }
+// remove filter item (regarding one of a product property) from filter
 const removeFromFilter = (prodProp: EnumKeys<Product>) => {
     let filtNew : FilterData | undefined;
-
     if (filter !== undefined ) {
         filtNew = { ...filter };
         delete filtNew[prodProp];
     }
     setFilter(filtNew);
 }
-
+// automatically set filtered products according to (changes in) products on page and filter data
 useEffect(() => {
     setFilteredProducts(products.filter((prod) => {
         if (filter !== undefined) {
@@ -98,15 +114,18 @@ useEffect(() => {
         } else {
             return true; // take every product if no filter
         }
-    }))
+    }) as never[])
 }, [products, filter]);
-/* kraj - klijentski filter za prikaz proizvoda na stranici */
+/* end - client-side products filter */
+    
     return (
         <div id="products-page">
-            <FilterByCategory products={products} direction="row" addToFilter={addFilter} removeFromFilter={removeFromFilter} />
+            <FilterByCategory products={products} direction="row" addToFilter={addFilter} removeFromFilter={removeFromFilter} selectedCat={selectedCat} setSelectedCat={handleCatChange}/>
             <div id="product-items">
                 <div id="price-filter">
-                    <div id="vert-fbc"><FilterByCategory products={products} direction="column" addToFilter={addFilter} removeFromFilter={removeFromFilter} /></div>
+                    <div id="vert-fbc">
+                        <FilterByCategory products={products} direction="column" addToFilter={addFilter} removeFromFilter={removeFromFilter} selectedCat={selectedCat} setSelectedCat={handleCatChange}/>
+                    </div>
                     <p className="filter-dim">Size:</p>
                     <div className="filter-sizes">
                         <div>XS</div><div>S</div><div>M</div>
@@ -118,11 +137,15 @@ useEffect(() => {
                         <p style={{textAlign: 'center'}}>less than or equals {maxPrice}</p>
                     </label>
                 </div>
-                <div id="products-grid">
-                    {filteredProducts.length > 0 ? filteredProducts.map((product) => (
-                        <ProductItem key={product.productid} product={product} onAdd={onAdd} onRemove={onRemove}/>
-                    )) : <span style={{color: 'black'}}>No products matching your criteria.</span>}
+                <div id="items">
+                    <div id="products-grid">
+                        {filteredProducts.length > 0 ? filteredProducts.map((product) => (
+                            <ProductItem key={(product as Product).productid} product={product} onAdd={onAdd} onRemove={onRemove}/>
+                        )) : <span style={{color: 'black'}}>No products matching your criteria.</span>}
+                    </div>
+                    <Pagination currentPage={props.currentPage} perPage={props.perPage} pageBaseUrl="/products" numMiddle={3} paramType={"search"} recordCount={props.productsCount}/>
                 </div>
+                
             </div>
         </div>
     )

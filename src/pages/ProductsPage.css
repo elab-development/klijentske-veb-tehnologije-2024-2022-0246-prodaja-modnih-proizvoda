@@ -27,6 +27,12 @@
     color: black;
 }
 
+#items {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
 .filter-sizes {
     display: flex;
     flex-wrap: wrap;
@@ -72,5 +78,8 @@
     }
     #price-filter {
         height: 125vh;
+    }
+    #product-items {
+        padding: 0 0 0 5vw;
     }
 }

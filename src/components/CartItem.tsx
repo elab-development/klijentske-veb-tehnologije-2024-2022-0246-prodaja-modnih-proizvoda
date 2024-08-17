@@ -1,13 +1,14 @@
-import { MdProductionQuantityLimits, MdSaveAlt, MdShoppingCartCheckout } from 'react-icons/md';
+import { MdProductionQuantityLimits, MdRemoveShoppingCart, MdSaveAlt, MdShoppingCartCheckout } from 'react-icons/md';
 import { Product, Size } from '../models/productModel';
 import './CartItem.css'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface CartItemProps {
     item: Product;
     new: boolean;
-    saveNewItem: (numOfItems: number, size: Size) => void;
+    saveNewItem: (numOfItems: number, size: Size, item?: Product) => void;
     removeProductFromCart: (productid: number) => void;
+    removeSizeFromCart: (productid: number, size: Size) => void;
 }
 
 const CartItem = (props: CartItemProps) => {
@@ -16,21 +17,27 @@ const CartItem = (props: CartItemProps) => {
     const [amount, setAmount] = useState(1);
     const [item, setItem] = useState<Product>(props.item);
     
+    // callback to handle number of purchased product items of the size specified in the corresponding field for new item in the cart
     const handleChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
         //const name = ev.target.name;
         const value = ev.target.value;
+
         if (newItem) {
             setItem(() => ({...item, amounts: {...item.amounts, [sizeOnNew as string]: Number(value)}}));
             setAmount(Number(value));
         } else {
-//
+        // nothing for now
         }
     }
 
     const handleSelect = (ev: React.ChangeEvent<HTMLSelectElement>)  => {
         const value = ev.target.value;
-        if (value === "0") {setSizeOnNew("0");console.log('select', sizeOnNew)} else {setSizeOnNew(value as Size | "0");}
+        if (value === "0") {setSizeOnNew("0");} else {setSizeOnNew(value as Size | "0");}
     }
+
+    useEffect(() => {
+        setItem(props.item);
+    }, [props.item])
 
     return (
         <>
@@ -43,19 +50,23 @@ const CartItem = (props: CartItemProps) => {
                         </select></span> : '') } <br /> { item.name }
                 </h3>
                 {(sizeOnNew !== '0' || !newItem) && <><div className="cart-item-data-header">
-                    <div style={{flexGrow: "1"}}># of items</div><div style={{flexBasis: "content"}}>Size:</div><div style={{flexBasis: "content"}}>Price:</div>
+                    <div style={{flexGrow: "1", textAlign: "left"}}># of items</div><div style={{textAlign: "center"}}>Size:</div><div style={{textAlign: "center"}}>Price:</div>
+                    { !newItem && <div><MdRemoveShoppingCart /></div>}
                 </div>
-                <div className="cart-items-by-sizes">
+                <div className="cart-items-by-sizes" style={newItem ? {flexDirection: "row"} : {}}>
                 {( newItem ) ? (
                     <>
-                        <div style={{flexGrow: "1"}}><input type="number" value={amount || ""} onChange={handleChange}/></div>
-                        <div style={{flexBasis: "content",textAlign: 'center'}}>{sizeOnNew === "0" ? "" : sizeOnNew}</div>
-                        <div style={{flexBasis: "content"}}><span>$ {item.price}</span></div>
+                        <div style={{flexGrow: "1", textAlign: 'left'}}><input type="number" value={amount || ""} onChange={handleChange}/></div>
+                        <div>{sizeOnNew === "0" ? "" : sizeOnNew}</div>
+                        <div><span>$ {item.price}</span></div>
                     </>
                 ) : <>{ Object.keys(item.amounts).filter((size) => Number(item.amounts[size]) > 0).map((size) => (<div key={size} className='cart-items'>
-                        <div><input type="number" value={item.amounts[size]} onChange={handleChange}/></div>
-                        <div><span>{size}</span></div>
-                        <div><span>$ {item.price}</span></div>
+                        <div><span>{item.amounts[size]}</span></div>
+                        <div style={{textAlign: 'center'}}><span>{size}</span></div>
+                        <div style={{textAlign: 'center'}}><span>$ {item.price}</span></div>
+                        <div style={{textAlign: 'center'}}>
+                            <button onClick={() => props.removeSizeFromCart(item.productid, size as Size)} title='Remove size from cart'><MdRemoveShoppingCart /></button>
+                        </div>
                     </div>))}
                     </>
                 }

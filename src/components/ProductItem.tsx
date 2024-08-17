@@ -19,7 +19,7 @@ const ProductItem: React.FC<ProductItemProps> = ({product, onAdd}) => {
                 <div className="pi-menu">
                     <div className="pi-price">$ {product.price}</div>
                     <div className="pi-to-cart"><a onClick={(event) => {event.stopPropagation();onAdd(product.productid); navigate("/cart")}}>Add to cart</a></div>
-                    <div className="pi-fav"><MdOutlineFavorite/></div>
+                    <div className="pi-fav" onClick={(event) => {event.stopPropagation()/* extra logic for favourites */}}><MdOutlineFavorite/></div>
                 </div>
             </IconContext.Provider>
         </div>

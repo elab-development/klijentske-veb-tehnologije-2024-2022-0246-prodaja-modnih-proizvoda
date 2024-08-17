@@ -21,18 +21,44 @@
     padding: 0 1vw;
 }
 
-.cart-items, .cart-items-by-sizes, .cart-item-data-header {
+.cart-items, .cart-item-data-header {
     display: flex;
-    justify-content: center;
+    justify-content: space-around;
     align-items: center;
 }
 
-.cart-items > div, .cart-items-by-sizes > div, .cart-item-data-header > div {
-    padding: 2px 10px;
+.cart-items button {
+    padding: 0 1vw;
+}
+
+.cart-items-by-sizes > div, .cart-item-data-header > div {
+    padding: 0 1vw;
+}
+
+.cart-items > div {
+    padding: 1vh 1vw;
+    flex-basis: 25%;
+}
+
+.cart-items {
+    flex-flow: row nowrap;
+    flex-grow: 1;
+    justify-content: space-between;
+}
+
+.cart-items-by-sizes {
+    /* flex-wrap: wrap; */
+    display: flex;
+    flex-direction: column;
 }
 
 .cart-item input, .cart-items-by-sizes input {
     width: 60px;
+}
+
+.cart-item-data-header > div, .cart-items-by-sizes > div {
+    flex-basis: 25%;
+    text-align: center; 
 }
 
 .new-item-save {
@@ -44,6 +70,12 @@
     border-color: #8C8686;
 }
 
+.cart-item-data {
+    display: flex;
+    flex-flow: column nowrap;
+    flex-grow: 1;
+    justify-content: center;
+}
 .cart-item-data > h3 {
     margin: 0;
 }

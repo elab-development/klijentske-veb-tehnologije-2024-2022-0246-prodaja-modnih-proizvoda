@@ -13,6 +13,7 @@ interface CartProps {
     savingsObj: Savings;
     saveNewItem: (numOfItems: number, size: Size) => void;
     removeProductFromCart: (productId: number) => void;
+    removeSizeFromCart: (productId: number, size: Size) => void;
     removePromoCode: () => void;
 }
 
@@ -23,18 +24,17 @@ export interface Savings {
 }
 
 function Cart(props: CartProps) {
-    const cartItems = props.cartProducts;
-    const [cartItemsCount, setCartItemsCount] = useState(0);
-    const [cartItemsPrice, setCartItemsPrice] = useState(0);
-    const [promoCode, setPromoCode] = useState('');
-    const [savings, setSavings] = useState(0);
-    const newItem = props.newItemInCart;
-
-    const savingsObj = props.savingsObj;
-
+    const cartItems = props.cartProducts; // products in the cart
+    const [cartItemsCount, setCartItemsCount] = useState(0); // number of product items of all sizes in the cart
+    const [cartItemsPrice, setCartItemsPrice] = useState(0); // total price of purchased items in the cart
+    const [promoCode, setPromoCode] = useState(''); // promo code applied (previously approved by server)
+    const [savings, setSavings] = useState(0); // saving amount in $, applied by accepted promo code
+    const newItem = props.newItemInCart; // new item in the cart that should be filled with the product size and number of items to be purchased - before will be saved in cart
+    const savingsObj = props.savingsObj; // savings object received from server for approved promo code
     const navigate = useNavigate();
-
+    // (re)calculate automatically the aggregate (summary) for updated cart items and update user interface
     useEffect(() => {
+        //console.log('cartItems: ', cartItems);
         let countOfItems = 0;
         let priceOfItems = 0;
         cartItems.forEach((val) => {
@@ -44,16 +44,16 @@ function Cart(props: CartProps) {
         setCartItemsCount(countOfItems);
         setCartItemsPrice(priceOfItems); 
     }, [cartItems]);
-
+    // recalculate price (and update user interface) of all purchased items on promo code approvement (and savings object reception)
     useEffect(() => {
         calculateSavings(cartItemsPrice, savingsObj);
     }, [cartItemsPrice, savingsObj]);
-
+    // callback on changed promo code by user
     const handlePromoChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
         const val = ev.target.value;
         setPromoCode(val);
     }
-
+    // calculate saving amount in $ according to savings object, received from server
     const calculateSavings = (price: number, savingsObj: Savings) => {
         const amount = savingsObj.amount;
         const calc = savingsObj.calculation;
@@ -67,19 +67,19 @@ function Cart(props: CartProps) {
         default:
             setSavings(0);
         }
-        //console.log('savings', savings, 'savingsObj', savingsObj);
     }
 
     return (
         <div id="cart">
             { newItem && <div id="new-cart-item">
-                <CartItem new item={newItem} saveNewItem={props.saveNewItem} removeProductFromCart={props.removeProductFromCart} />
+                <CartItem new item={newItem} saveNewItem={props.saveNewItem} removeProductFromCart={props.removeProductFromCart} removeSizeFromCart={props.removeSizeFromCart} />
             </div> }
             <div id="cart-items">
                 {cartItems.length ? (<div id="cart-items-saved"><div>
                     {cartItems.map((item) => (
                         <div key={item.productid} className="cart-item">
-                            <CartItem new={false} item={item} saveNewItem={props.saveNewItem} removeProductFromCart={props.removeProductFromCart} />
+                            <CartItem new={false} item={item} saveNewItem={props.saveNewItem}
+                                removeProductFromCart={props.removeProductFromCart} removeSizeFromCart={props.removeSizeFromCart} />
                         </div>
                     ))}
                 </div></div>): (<p style={{textAlign: 'center'}}>No items in the cart.</p>)}
@@ -110,7 +110,12 @@ function Cart(props: CartProps) {
                         <span style={{color: '#A58B77'}}>{savingsObj.name} promo code applied! </span><button onClick={() => props.removePromoCode()}><MdCancelScheduleSend /> Remove</button>
                     </div> }
                     <div style={{textAlign: 'center', padding: '1vh 2vw'}}>
-                        <button style={{ width: '100%'}} onClick={() => navigate('/payment')}>Continue</button>
+                        <div style={{paddingRight: "1vw", width: '70%', display: "inline-block"}}>
+                            <button style={{ width: '100%'}} onClick={() => navigate('/payment')}>Continue</button>
+                        </div>
+                        <div style={{paddingLeft: "1vw", width: '30%', display: "inline-block"}}>
+                            <button style={{ width: '100%'}} onClick={() => history.back()}>Back</button>
+                        </div>
                     </div>
                 </div></div> }
             </div>
