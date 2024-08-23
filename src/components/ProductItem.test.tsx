@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom'; 
+//import '@testing-library/jest-dom'; 
 import ProductItem from '././ProductItem'; 
 import { describe, expect, it, vi } from 'vitest';
 import { Product } from '../models/productModel';
