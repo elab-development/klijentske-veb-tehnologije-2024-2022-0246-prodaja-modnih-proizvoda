@@ -175,7 +175,7 @@ function App() {
   const router = createBrowserRouter(
     createRoutesFromElements([
       <Route path="/" element={<Layout user={user} loginUser={loginUser} cartItemsCount={cartNum}/>}>
-        <Route index element={<Home products={products}/>} />
+        <Route index element={<Home products={products} onAdd={addToCart} onRemove={removeProductFromCart}/>} />
         <Route path="/products/:productId" element={<ProductPage></ProductPage>} />
         <Route path="/products" loader={({request}) => {
           const url = new URL(request.url);

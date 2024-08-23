@@ -7,6 +7,8 @@ import ProductItem from '../components/ProductItem';
 
 interface HomeProps {
     products: Product[];
+    onAdd: (productId: number) => void;
+    onRemove: (productId: number) => void;
 }
 
 function Home(props: HomeProps) {
@@ -26,7 +28,7 @@ function Home(props: HomeProps) {
                 <span>Recommended products</span>
                 <div id="prep-grid">
                     {recommended.map((product) => (
-                        <ProductItem key={product.productid} product={product} />
+                        <ProductItem key={product.productid} product={product} onAdd={props.onAdd} onRemove={props.onRemove}/>
                     ))}
                 </div>
             </div>
