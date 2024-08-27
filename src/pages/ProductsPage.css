@@ -19,6 +19,11 @@
     flex-grow: 1;
 }
 
+#products-grid p {
+    color: black;
+    text-align: center;
+}
+
 #price-filter {
     background: #DED5CE;
     padding: 0 10px;

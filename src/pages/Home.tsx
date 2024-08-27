@@ -9,6 +9,7 @@ interface HomeProps {
     products: Product[];
     onAdd: (productId: number | string) => void;
     onRemove: (productId: number | string) => void;
+    loadingProducts: boolean;
 }
 
 function Home(props: HomeProps) {
@@ -27,9 +28,9 @@ function Home(props: HomeProps) {
             <div id="prep-pro">
                 <span>Recommended products</span>
                 <div id="prep-grid">
-                    {recommended.map((product) => (
+                    {props.loadingProducts ? <p>Loading products, please wait...</p>: (recommended.map((product) => (
                         <div style={{padding: "1vh 1vw"}}><ProductItem key={product.productid} product={product} onAdd={props.onAdd} onRemove={props.onRemove}/></div>
-                    ))}
+                    )))}
                 </div>
             </div>
         </div>

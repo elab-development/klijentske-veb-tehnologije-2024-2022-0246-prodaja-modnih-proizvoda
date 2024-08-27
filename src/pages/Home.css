@@ -83,6 +83,11 @@
     flex-wrap: wrap;
 }
 
+#prep-grid p {
+    color: black;
+    text-align: center;
+}
+
 @media screen and ((max-width: 768px) or (max-height: 415px)) {
 
     #product-link {

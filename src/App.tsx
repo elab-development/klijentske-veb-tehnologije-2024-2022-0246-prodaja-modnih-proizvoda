@@ -29,6 +29,7 @@ function App() {
   const [productsCount, setProductsCount] = useState(0); // total number of products in the store - in order to calculate max number of pages
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(16);
+  const [loadingProducts, setLoadingProducts] = useState(false);
 
   const loginUser = async (email: string | undefined, password: string | undefined) => {
     try {
@@ -53,7 +54,9 @@ function App() {
   // fetch data - generic
   const fetchData = async (url: string, callback: (data: unknown) => void, onErr: (e: unknown) => void = (err) => err, options: object = {}) => {
     try {
+      setLoadingProducts(true)
       const response = await fetch(url, options)
+      setLoadingProducts(false)
       const data = await response.json()
       callback(data)
     } catch(e) {
@@ -184,7 +187,7 @@ function App() {
   const router = createBrowserRouter(
     createRoutesFromElements([
       <Route path="/" element={<Layout user={user} loginUser={loginUser} cartItemsCount={cartNum}/>}>
-        <Route index element={<Home products={products} onAdd={addToCart} onRemove={removeProductFromCart}/>} />
+        <Route index element={<Home products={products} onAdd={addToCart} onRemove={removeProductFromCart} loadingProducts={loadingProducts} />} />
         <Route path="/products/:productId" element={<ProductPage></ProductPage>} />
         <Route path="/products" loader={({request}) => {
           const url = new URL(request.url);
@@ -193,7 +196,7 @@ function App() {
           return {page, perPage };
         }}
           element={ <ProductsPage products={products} onAdd={addToCart} onRemove={removeProductFromCart} acceptPage={acceptPageChange} productsCount={productsCount}
-                      currentPage={page} perPage={perPage} /> }
+                      currentPage={page} perPage={perPage} loadingProducts={loadingProducts} /> }
         />
         <Route
           path="/cart"
