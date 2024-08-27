@@ -38,15 +38,15 @@ const Header: React.FC<HeaderProps> = ({position, backgroundColor, user, loginUs
                 </div>
                 
                 <div className="user">
-                    <Link to="/user"><MdPerson /></Link>
+                    <div><Link to="/user"><MdPerson /></Link>
                     <Link to="/cart"><MdShoppingCart />{ cartItemsCount.toString() !== "0" && <span className="badge">{cartItemsCount}</span> }</Link>
-                    <Link to="/fav"><MdOutlineFavorite /></Link>
+                    <Link to="/fav"><MdOutlineFavorite /></Link></div><div>
                     {user && user.firstName !== 'Site' && user.lastName !== 'User' ?
                     <button className="user-link" onClick={() => loginUser()}>Log out</button>
                     :
                     <><Link to="/login" className="user-link">Log in</Link>
                     <Link to="/signup" className="user-link">Sign Up</Link></>                   
-                    }
+                    }</div>
                 </div> 
             </div>
         </IconContext.Provider>

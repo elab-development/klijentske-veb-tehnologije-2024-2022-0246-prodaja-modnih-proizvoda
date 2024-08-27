@@ -7,8 +7,8 @@ interface CartItemProps {
     item: Product;
     new: boolean;
     saveNewItem: (numOfItems: number, size: Size, item?: Product) => void;
-    removeProductFromCart: (productid: number) => void;
-    removeSizeFromCart: (productid: number, size: Size) => void;
+    removeProductFromCart: (productid: number | string) => void;
+    removeSizeFromCart: (productid: number | string, size: Size) => void;
 }
 
 const CartItem = (props: CartItemProps) => {
@@ -41,7 +41,7 @@ const CartItem = (props: CartItemProps) => {
 
     return (
         <>
-            <div className="cart-item-image"><div style={{backgroundImage: `url("/img/products/${item.image}")`}}></div></div>
+            <div className="cart-item-image"><div style={{backgroundImage: `url("${item.image}")`}}></div></div>
             <div className="cart-item-data">
                 <h3 style={{textAlign: 'center'}}>
                     {newItem && <MdShoppingCartCheckout style={{fontSize: '25pt'}} />} { (newItem ? <span> New cart item - please select size: <select onChange={handleSelect} value={sizeOnNew}>

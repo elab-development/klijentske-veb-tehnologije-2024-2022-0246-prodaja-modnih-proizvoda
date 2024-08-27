@@ -12,8 +12,8 @@ interface CartProps {
     processPromo: (promo: string) => void;
     savingsObj: Savings;
     saveNewItem: (numOfItems: number, size: Size) => void;
-    removeProductFromCart: (productId: number) => void;
-    removeSizeFromCart: (productId: number, size: Size) => void;
+    removeProductFromCart: (productId: number | string) => void;
+    removeSizeFromCart: (productId: number | string, size: Size) => void;
     removePromoCode: () => void;
 }
 

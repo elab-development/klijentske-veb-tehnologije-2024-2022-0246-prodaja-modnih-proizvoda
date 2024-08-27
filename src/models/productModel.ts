@@ -10,7 +10,7 @@ export type ObjectKeysFromEnum<T, P> = {
 
 
 export class Product {
-    productid: number;
+    productid: number | string;
     name: string;
     description: string;
     price: number;
@@ -23,7 +23,7 @@ export class Product {
     amounts: ObjectKeysFromEnum<Size, number>;
     recommended: boolean;
     
-    constructor(id: number, name: string, description: string, price: number, image: string, category: string, recommended = false,
+    constructor(id: number | string, name: string, description: string, price: number, image: string, category: string, recommended = false,
         amounts = {"XS": 0, "S": 0, "M": 0, "L": 0, "XL": 0, "XXL": 0}) {
         this.productid = id;
         this.name = name;

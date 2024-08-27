@@ -11,6 +11,7 @@ import { User } from './models/userModel'
 import { Product, Size } from './models/productModel'
 import Login from './pages/Login'
 import ProductPage from './pages/ProductPage'
+import { ProductResult, ProductResults } from './models/productsData'
 
 function App() {
   // variables lifted up from child components
@@ -50,11 +51,11 @@ function App() {
       
   }, [])
   // fetch data - generic
-  const fetchData = async (url: string, callback: (data: unknown) => void, onErr: (e: unknown) => void = (err) => err) => {
+  const fetchData = async (url: string, callback: (data: unknown) => void, onErr: (e: unknown) => void = (err) => err, options: object = {}) => {
     try {
-      const response = await fetch(url)
+      const response = await fetch(url, options)
       const data = await response.json()
-      callback(data as {products: Product[]})
+      callback(data)
     } catch(e) {
       onErr(e)
     }
@@ -68,15 +69,23 @@ function App() {
   }
   // processing products on page from server
   useEffect(() => {
-    const afterFetchProducts = (data: {products: Product[], count: number}) => {
-      const productsFromData = data.products.map((el: unknown) => {
-        const elem = el as Product;
-        return new Product(elem.productid, elem.name, elem.description, elem.price, elem.image, elem.category, elem.recommended);
+    const url = `https://apidojo-hm-hennes-mauritz-v1.p.rapidapi.com/products/list?country=us&lang=en&currentpage=${page - 1}&pagesize=${perPage}&categories=ladies_all`;
+    const options = {
+      method: 'GET',
+      headers: {
+        'x-rapidapi-key': '42a9fe9fa2msh8eaebbf9ccf1c57p13e6c1jsn588ebcc3a584',
+        'x-rapidapi-host': 'apidojo-hm-hennes-mauritz-v1.p.rapidapi.com'
+      }
+    };
+    const afterFetchProducts = (data: ProductResults) => {
+      const productsFromData = data.results.map((el: unknown, index: number) => {
+        const elem = el as ProductResult;
+        return new Product(elem.code, elem.name, `Description of ${elem.name}`, elem.price.value, elem.images[0].baseUrl, elem.categoryName, index < 4 || elem.sale);
       });
       setProducts(productsFromData as Product[]);
-      setProductsCount(data.count);
+      setProductsCount(data.pagination.totalNumberOfResults);
     };
-    fetchData(`/data/products_per_page_${perPage}_${page}.json`,afterFetchProducts as unknown as (data: unknown) => void);
+    fetchData(url,afterFetchProducts as unknown as (data: unknown) => void, (err) => err, options);
   }, [page, perPage])
   // determine automatically if new product item is already in the cart (when cartProducts and / or newItemInCart variables have changed)
   useEffect(() => {
@@ -88,7 +97,7 @@ function App() {
     setCartNum(cartProducts.length);
   }, [cartProducts])
   // add product as new item to (specify amount and size and) be saved in the cart 
-  const addToCart = (productId: number, amount = 1, size: Size | null = null) => {
+  const addToCart = (productId: number | string, amount = 1, size: Size | null = null) => {
     const cInd = cartProducts.findIndex((val) => val.productid === productId);
     if (size == null) { // new item in cart
       if (cInd === -1) {
@@ -105,7 +114,7 @@ function App() {
     }
   }
   // removes all sizes of a product from cart
-  const removeProductFromCart = (productId: number) => {
+  const removeProductFromCart = (productId: number | string) => {
     const cartItems: Product[] = [...cartProducts];
     if (cartItems.length) {
       const cInd = cartItems.findIndex((val) => val.productid === productId);
@@ -122,7 +131,7 @@ function App() {
     }
   }
   // removes one size of a product from cart
-  const removeSizeFromCart = (productId: number, size: Size) => {
+  const removeSizeFromCart = (productId: number | string, size: Size) => {
     const cartItems: Product[] = [...cartProducts];
     if (cartItems.length) {
       const cInd = cartItems.findIndex((val) => val.productid === productId);

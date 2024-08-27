@@ -12,8 +12,8 @@ export type FilterData = ObjectKeysFromEnum<Product, {operation: FilterOperation
 interface ProductPageProps {
     products: Product[];
     /* lifted-up properties to App */
-    onAdd: (productId: number) => void;
-    onRemove: (productId: number) => void;
+    onAdd: (productId: number | string) => void;
+    onRemove: (productId: number | string) => void;
     acceptPage: (page: number, perPage?: number) => void;
     currentPage: number;
     perPage: number;
@@ -140,7 +140,7 @@ useEffect(() => {
                 <div id="items">
                     <div id="products-grid">
                         {filteredProducts.length > 0 ? filteredProducts.map((product) => (
-                            <ProductItem key={(product as Product).productid} product={product} onAdd={onAdd} onRemove={onRemove}/>
+                            <div style={{padding: "1vh 1vw"}}><ProductItem key={(product as Product).productid} product={product} onAdd={onAdd} onRemove={onRemove}/></div>
                         )) : <span style={{color: 'black'}}>No products matching your criteria.</span>}
                     </div>
                     <Pagination currentPage={props.currentPage} perPage={props.perPage} pageBaseUrl="/products" numMiddle={3} paramType={"search"} recordCount={props.productsCount}/>

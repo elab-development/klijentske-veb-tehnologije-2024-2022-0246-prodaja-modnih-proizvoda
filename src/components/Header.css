@@ -4,7 +4,7 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     width: 100%;
     max-width: 1440px;
     background-color: #DED5CE;
@@ -23,7 +23,7 @@
 }
 
 #header .search {
-    padding: 0 30px;
+    padding: 0 3vw;
     flex-grow: 1;
     /* font-size: 4.5vmin; */
     display: flex;
@@ -37,7 +37,7 @@
 }
 
 #header .search div {
-    width: 30vmax;
+    width: 100%;
     position: relative;
 }
 
@@ -84,10 +84,6 @@ a.user-link:hover {
 }
 
 @media screen and (max-width: 640px) {
-    #header {
-        flex-direction: column;
-        justify-content: center;
-    }
 
     #header logo {
         width: 125px;
