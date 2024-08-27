@@ -29,7 +29,7 @@ function Home(props: HomeProps) {
                 <span>Recommended products</span>
                 <div id="prep-grid">
                     {props.loadingProducts ? <p>Loading products, please wait...</p>: (recommended.map((product) => (
-                        <div style={{padding: "1vh 1vw"}}><ProductItem key={product.productid} product={product} onAdd={props.onAdd} onRemove={props.onRemove}/></div>
+                        <div key={product.productid} style={{padding: "1vh 1vw"}}><ProductItem product={product} onAdd={props.onAdd} onRemove={props.onRemove}/></div>
                     )))}
                 </div>
             </div>

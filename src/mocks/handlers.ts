@@ -279,7 +279,7 @@ const productsPage = {
 };
 export const handlers = [
   // Intercept "GET /data/products" requests...
-  http.get('/data/products.json', () => {
+  http.get('/products', () => {
     // ...and respond to them using this JSON response.
     return HttpResponse.json(productsPage);
   }),

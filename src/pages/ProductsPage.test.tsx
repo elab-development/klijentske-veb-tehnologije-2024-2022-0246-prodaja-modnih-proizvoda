@@ -19,21 +19,23 @@ describe('Test ProductsPage page component with mocked API response server', () 
     const mockedOnRemove = vi.fn();
     const mockedAcceptPage = vi.fn();
 
+    const loading = false; // test does not deal with loading phase
+
     it('renders "No products matching your criteria." on empty products response', () => {
-        render(<ProductsPage products={[]} currentPage={1} perPage={16} productsCount={100} onAdd={mockedOnAdd} onRemove={mockedOnRemove} acceptPage={mockedAcceptPage} />);
+        render(<ProductsPage products={[]} currentPage={1} perPage={16} productsCount={100} onAdd={mockedOnAdd} onRemove={mockedOnRemove} acceptPage={mockedAcceptPage} loadingProducts={loading} />);
         const el = screen.queryByText('No products matching your criteria.');
         expect(el).toBeInTheDocument();
     });
 
     it('fetches API data from /data/products and displays (correct count of) them', async () => {
-        const response = await fetch('/data/products.json'); // should be intercepted by mocked server
+        const response = await fetch('/products'); // should be intercepted by mocked server
         const data = await response.json();
         const products = data.products.map((el: unknown) => {
             const elem = el as Product;
             return new Product(elem.productid, elem.name, elem.description, elem.price, elem.image, elem.category, elem.recommended);
         });
         const productsCount = data.count;
-        render(<ProductsPage products={products} currentPage={1} perPage={16} productsCount={productsCount} onAdd={mockedOnAdd} onRemove={mockedOnRemove} acceptPage={mockedAcceptPage} />);
+        render(<ProductsPage products={products} currentPage={1} perPage={16} productsCount={productsCount} onAdd={mockedOnAdd} onRemove={mockedOnRemove} acceptPage={mockedAcceptPage} loadingProducts={loading} />);
         
         // just checking if API request is intercepted by mocked server - first productId is 100 instead of 1 - along with product item consistency check
         const addToCartLinks = screen.queryAllByText('Add to cart');

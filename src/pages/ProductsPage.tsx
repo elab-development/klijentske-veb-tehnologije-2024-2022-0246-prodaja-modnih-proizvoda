@@ -142,7 +142,7 @@ useEffect(() => {
                     <Pagination currentPage={props.currentPage} perPage={props.perPage} pageBaseUrl="/products" numMiddle={3} paramType={"search"} recordCount={props.productsCount}/>
                     <div id="products-grid">
                         {props.loadingProducts ? <p>Loading products, please wait...</p> : (filteredProducts.length > 0 ? filteredProducts.map((product) => (
-                            <div style={{padding: "1vh 0.2vw"}}><ProductItem key={(product as Product).productid} product={product} onAdd={onAdd} onRemove={onRemove}/></div>
+                            <div key={(product as Product).productid} style={{padding: "1vh 0.2vw"}}><ProductItem product={product} onAdd={onAdd} onRemove={onRemove}/></div>
                         )) : <span style={{color: 'black'}}>No products matching your criteria.</span>)}
                     </div>
                     <Pagination currentPage={props.currentPage} perPage={props.perPage} pageBaseUrl="/products" numMiddle={3} paramType={"search"} recordCount={props.productsCount}/>

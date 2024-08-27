@@ -29,7 +29,7 @@ describe('Test ProductItem component', () => {
     const prodItemElement = document.getElementsByClassName("product-item")[0];
 
     //insure that background image CSS property is with test Image Url
-    expect(prodItemElement).toHaveStyle({'background-image': `url(/img/products/${testImageUrlPart})`});
+    expect(prodItemElement).toHaveStyle({'background-image': `url(${testImageUrlPart})`});
 
     //find the corresponding product item HTML element
     const prodPriceElement = document.getElementsByClassName("pi-price")[0];
