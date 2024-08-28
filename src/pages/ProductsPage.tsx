@@ -5,6 +5,7 @@ import { EnumKeys, ObjectKeysFromEnum, Product } from "../models/productModel";
 import './ProductsPage.css';
 import { useLoaderData } from "react-router-dom";
 import Pagination from "../components/Pagination";
+import { useChangeLocationListener } from "../hooks/useChangeLocationListener";
 
 export type FilterOperation = "eq" | "lt" | "le" | "gt" | "ge" | "in" | "bw";
 export type FilterData = ObjectKeysFromEnum<Product, {operation: FilterOperation, values: string[] | number[]}>
@@ -22,6 +23,9 @@ interface ProductPageProps {
 }
 
 function ProductsPage(props: ProductPageProps) {
+
+    useChangeLocationListener(() => {window.scrollTo(0,0); /*console.log('scrollY', window.scrollY)*/});
+
     const products = props.products;
     /* add to cart and remove from cart */
     const onAdd = props.onAdd;
