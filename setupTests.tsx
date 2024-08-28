@@ -11,3 +11,6 @@ afterEach(() => server.resetHandlers());
 
 // Clean up after the tests are finished.
 afterAll(() => server.close());
+
+const noop = () => {};
+Object.defineProperty(window, 'scrollTo', { value: noop, writable: true });

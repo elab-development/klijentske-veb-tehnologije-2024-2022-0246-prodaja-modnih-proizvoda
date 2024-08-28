@@ -6,11 +6,13 @@ import { Product } from "../models/productModel";
 // useNavigate from Pagination.tsx and useLoaderData from ProductsPage should be mocked at the top level of this file
 const mockedUseNavigate = vi.fn();
 const mockedUseLoadData = vi.fn();
+const mockedUseLocation = vi.fn();
 
 vi.mock('react-router-dom', () => ({
    ...vi.importActual('react-router-dom') as Promise<unknown>,
   useNavigate: () => mockedUseNavigate,
   useLoaderData: () => mockedUseLoadData,
+  useLocation: () => mockedUseLocation
 }));
 
 describe('Test ProductsPage page component with mocked API response server', () => {
