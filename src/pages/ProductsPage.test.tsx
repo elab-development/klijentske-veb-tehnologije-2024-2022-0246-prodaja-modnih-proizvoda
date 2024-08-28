@@ -29,7 +29,7 @@ describe('Test ProductsPage page component with mocked API response server', () 
         expect(el).toBeInTheDocument();
     });
 
-    it('fetches API data from /data/products and displays (correct count of) them', async () => {
+    it('fetches API data from /products and displays (correct count of) them', async () => {
         const response = await fetch('/products'); // should be intercepted by mocked server
         const data = await response.json();
         const products = data.products.map((el: unknown) => {
