@@ -71,7 +71,7 @@ export interface ProductArticle {
     name: string;
     images: GalleryImage[];
     pk: string;
-    whitePrice: Price[];
+    whitePrice: Price;
     logoPicture: GalleryImage[];
     normalPicture: GalleryImage[];
     visible: boolean;

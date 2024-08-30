@@ -3,7 +3,7 @@ import FilterByCategory from "../components/FilterByCategory";
 import ProductItem from "../components/ProductItem";
 import { EnumKeys, ObjectKeysFromEnum, Product } from "../models/productModel";
 import './ProductsPage.css';
-import { useLoaderData } from "react-router-dom";
+import { Outlet, useLoaderData, useNavigate, useParams } from "react-router-dom";
 import Pagination from "../components/Pagination";
 import { useChangeLocationListener } from "../hooks/useChangeLocationListener";
 
@@ -23,7 +23,8 @@ interface ProductPageProps {
 }
 
 function ProductsPage(props: ProductPageProps) {
-
+    const params = useParams();
+    const navigate = useNavigate();
     useChangeLocationListener(() => {window.scrollTo(0,0); /*console.log('scrollY', window.scrollY)*/});
 
     const products = props.products;
@@ -54,6 +55,10 @@ const handleRangeChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
 // handle selectedCat change
 const handleCatChange = ( categ: string) => {
     setSelectedCat(categ);
+    if (params.productId) {
+        navigate('/products');
+        //history.back();
+    }
 }
 // add new item into filter - all filter items should be true on a specific product item to be filtered and displayed
 const addFilter = (prodProp: EnumKeys<Product>, prod: {operation: FilterOperation, values: string[] | number[]}) => {
@@ -126,7 +131,8 @@ useEffect(() => {
     return (
         <div id="products-page">
             <FilterByCategory products={products} direction="row" addToFilter={addFilter} removeFromFilter={removeFromFilter} selectedCat={selectedCat} setSelectedCat={handleCatChange}/>
-            <div id="product-items">
+            <Outlet />
+            {!params.productId && (<div id="product-items">
                 <div id="price-filter">
                     <div id="vert-fbc">
                         <FilterByCategory products={products} direction="column" addToFilter={addFilter} removeFromFilter={removeFromFilter} selectedCat={selectedCat} setSelectedCat={handleCatChange}/>
@@ -152,7 +158,7 @@ useEffect(() => {
                     <Pagination currentPage={props.currentPage} perPage={props.perPage} pageBaseUrl="/products" numMiddle={3} paramType={"search"} recordCount={props.productsCount}/>
                 </div>
                 
-            </div>
+            </div>)}
         </div>
     )
 }

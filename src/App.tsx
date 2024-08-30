@@ -12,6 +12,7 @@ import { Product, Size } from './models/productModel'
 import Login from './pages/Login'
 import ProductPage from './pages/ProductPage'
 import { ProductResult, ProductResults } from './models/productsData'
+import apiCategories from './assets/api_categories.json'
 
 function App() {
   // variables lifted up from child components
@@ -31,6 +32,13 @@ function App() {
   const [perPage, setPerPage] = useState(16);
   const [loadingProducts, setLoadingProducts] = useState(false);
 
+  interface apiCategories {
+    CatName?: string;
+    CategoryValue?: string;
+    tagCodes?: string[];
+    CategoriesArray?: apiCategories[] | undefined;
+  }
+  
   const loginUser = async (email: string | undefined, password: string | undefined) => {
     try {
       if (email && password) { // mock log in
@@ -72,6 +80,21 @@ function App() {
   }
   // processing products on page from server
   useEffect(() => {
+    const getCategoryFromApi = (tag: string, obj: apiCategories, level = 1, separator = "_") => {
+      if(!obj || obj.tagCodes?.includes(tag)) return obj;
+      
+      const catTags = tag.split(separator);
+      let i = 0;
+      let searchTxt = catTags[0] + separator + catTags[1];
+      if (level > 1) searchTxt = tag;
+      const res = obj.CategoriesArray;
+      if (res) {
+        while (!getCategoryFromApi(searchTxt, res[i]) && (i < res.length)) {i++;}
+        if (i <= res.length) {
+          return getCategoryFromApi(tag, getCategoryFromApi(searchTxt, res[i]) as apiCategories, 2, separator);
+        } 
+      } else {return null}
+    };
     const url = `https://apidojo-hm-hennes-mauritz-v1.p.rapidapi.com/products/list?country=us&lang=en&currentpage=${page - 1}&pagesize=${perPage}&categories=ladies_all`;
     const options = {
       method: 'GET',
@@ -80,15 +103,19 @@ function App() {
         'x-rapidapi-host': 'apidojo-hm-hennes-mauritz-v1.p.rapidapi.com'
       }
     };
+
     const afterFetchProducts = (data: ProductResults) => {
       const productsFromData = data.results.map((el: unknown, index: number) => {
-        const elem = el as ProductResult;
-        return new Product(elem.code, elem.name, `Description of ${elem.name}`, elem.price.value, elem.images[0].baseUrl, elem.categoryName, index < 4 || elem.sale);
+        const res = el as ProductResult;
+        const elem = res.articles[0];
+        //console.log(res.mainCategoryCode, getCategoryFromApi(res.mainCategoryCode));
+        return new Product(elem.code, elem.name, `Description of ${elem.name}`, elem.whitePrice.value, elem.images[0].baseUrl, getCategoryFromApi(res.mainCategoryCode, apiCategories)?.CatName as string, index < 4 || res.sale);
       });
       setProducts(productsFromData as Product[]);
       setProductsCount(data.pagination.totalNumberOfResults);
     };
     fetchData(url,afterFetchProducts as unknown as (data: unknown) => void, (err) => err, options);
+
   }, [page, perPage])
   // determine automatically if new product item is already in the cart (when cartProducts and / or newItemInCart variables have changed)
   useEffect(() => {
@@ -188,7 +215,6 @@ function App() {
     createRoutesFromElements([
       <Route path="/" element={<Layout user={user} loginUser={loginUser} cartItemsCount={cartNum}/>}>
         <Route index element={<Home products={products} onAdd={addToCart} onRemove={removeProductFromCart} loadingProducts={loadingProducts} />} />
-        <Route path="/products/:productId" element={<ProductPage></ProductPage>} />
         <Route path="/products" loader={({request}) => {
           const url = new URL(request.url);
           const page = Number(url.searchParams.get('page')) || 1;
@@ -197,7 +223,9 @@ function App() {
         }}
           element={ <ProductsPage products={products} onAdd={addToCart} onRemove={removeProductFromCart} acceptPage={acceptPageChange} productsCount={productsCount}
                       currentPage={page} perPage={perPage} loadingProducts={loadingProducts} /> }
-        />
+        >
+          <Route path="/products/:productId" element={<ProductPage fetchData={fetchData} loadingProduct={loadingProducts}></ProductPage>} />
+        </Route>
         <Route
           path="/cart"
           element={
