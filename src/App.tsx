@@ -6,15 +6,27 @@ import NoPage from './pages/NoPage'
 import Cart from './pages/Cart'
 import type { Savings } from './pages/Cart';
 import ProductsPage from './pages/ProductsPage'
-import { useEffect, useState } from 'react'
+import { useDeferredValue, useEffect, useState } from 'react'
 import { User } from './models/userModel'
 import { Product, Size } from './models/productModel'
 import Login from './pages/Login'
 import ProductPage from './pages/ProductPage'
-import { ProductResult, ProductResults } from './models/productsData'
+import { ProductDetailsResult, ProductResult, ProductResults } from './models/productsData'
 import apiCategories from './assets/api_categories.json'
 
 function App() {
+  // saved in localStorage
+  let cp = 1;
+  let ci: Product[] = [];
+  if (localStorage) {
+    if (localStorage.getItem('lastPage')) {
+      cp = Number(localStorage.getItem('lastPageViewed'));
+    }
+    if (localStorage.getItem('cartItems')) {
+      const cio : Product[] = JSON.parse(localStorage.getItem('cartItems') as string);
+      ci = cio.map((p) => new Product(p.productid, p.name, p.description, p.price, p.images, p.category, p.recommended, p.amounts ));
+    }
+  }
   // variables lifted up from child components
   // user
   const [user, setUser] = useState<User | Record<string, never>>({firstName: "Site", lastName: "User"})
@@ -22,15 +34,23 @@ function App() {
   const noSavings: Savings = {amount: 0, calculation: 'difference'};
   const [cartNum, setCartNum] = useState(0); // number of products in the cart - not specific items of all sizes!
   const [savings, setSavings] = useState<Savings>(noSavings /*0*/);
-  const [cartProducts, setCartProducts] = useState<Product[]>([]); // products in the cart
+  const [cartProducts, setCartProducts] = useState<Product[]>(ci); // products in the cart
   const [newItemInCart, setNewItemInCart] = useState<Product | null>(null);
   const [newAlreadyInCart, setNewAlreadyInCart] = useState(-1); // to have info in time - when shown in the cart - about if a new cart item product is already in the cart
   // products
   const [products, setProducts] = useState<Product[]>([]); // products from one page, obtained from server
   const [productsCount, setProductsCount] = useState(0); // total number of products in the store - in order to calculate max number of pages
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(cp);
   const [perPage, setPerPage] = useState(16);
   const [loadingProducts, setLoadingProducts] = useState(false);
+  // product data for product page
+  const [product, setProduct] = useState<Product | undefined>(undefined);
+  const [code, setCode] = useState<number | string | undefined>(undefined); // product code, ie. productId
+  const [remainingApiRequests, setRemainingApiRequests] = useState(500);
+  const [loadingProduct, setLoadingProduct] = useState(false);
+
+  const defferedProducts = useDeferredValue(products);
+  const defferedCode = useDeferredValue(code);
 
   interface apiCategories {
     CatName?: string;
@@ -60,26 +80,77 @@ function App() {
       
   }, [])
   // fetch data - generic
-  const fetchData = async (url: string, callback: (data: unknown) => void, onErr: (e: unknown) => void = (err) => err, options: object = {}) => {
+  const fetchData = async (url: string, callback: (data: unknown, headers: Headers) => void, onErr: (e: unknown) => void = (err) => err, options: object = {}) => {
     try {
-      setLoadingProducts(true)
+      //setLoadingProducts(true)
       const response = await fetch(url, options)
-      setLoadingProducts(false)
+      //setLoadingProducts(false)
       const data = await response.json()
-      callback(data)
+      callback(data, response.headers)
     } catch(e) {
       onErr(e)
     }
   }
+
+  // callback to accept productId changes
+  const acceptProductCode = (pCode: number | string) => {
+    setCode(pCode);
+  }
+
   // callback to accept page changes (from current url - originating from paginator)
   const acceptPageChange = (page: number, perPage?: number ) => {
     setPage(page);
+    localStorage.setItem('lastPageViewed', page.toString());
     if (perPage) {
       setPerPage(perPage);
     }
   }
+
+  // processing product on productId changes
+  useEffect(() => {
+    let ignore = false; // to save API requests in development mode 
+    // fetch product data by product code via API
+    const fetchProduct = (pCode: string) => {
+      if (!ignore && pCode) {
+        const url = `https://apidojo-hm-hennes-mauritz-v1.p.rapidapi.com/products/detail?lang=en&country=us&productcode=${pCode}`;
+        const options = {
+          method: 'GET',
+          headers: {
+            'x-rapidapi-key': '85626f9ab9mshf18d6f11f90b5dap1b6e96jsn22e0ab356e24',
+            'x-rapidapi-host': 'apidojo-hm-hennes-mauritz-v1.p.rapidapi.com'
+          }
+        };
+
+        const afterFetchProduct = (data: ProductDetailsResult, headers: Headers) => {
+          if (data.responseStatusCode === "ok") {
+            const productDetails = data.product;
+            const prod = products.find<Product>((el) => {
+              return el.productid === productDetails.code;
+            });
+            if (prod) {
+              prod.description = productDetails.description;
+              setProduct(prod as Product);
+            } else {
+              console.log('POZOR: Nema proizvoda!');
+            }
+            setRemainingApiRequests(Number(headers.get('X-Ratelimit-Requests-Remaining')));
+          }
+          
+        };
+        if ((defferedProducts[0].productid === products[0].productid) && (defferedCode !== code)) {
+          setLoadingProduct(true);
+          fetchData(url,afterFetchProduct as unknown as (data: unknown, headers: Headers) => void, (err) => err, options);
+          setLoadingProduct(false);
+        }
+      }
+    };
+    fetchProduct(code as string);
+    return () => {ignore = true};
+  }, [code, products, defferedProducts, defferedCode]);
+
   // processing products on page from server
   useEffect(() => {
+    let ignore = false; // to save API requests in development mode 
     const getCategoryFromApi = (tag: string, obj: apiCategories, level = 1, separator = "_") => {
       if(!obj || obj.tagCodes?.includes(tag)) return obj;
       
@@ -99,7 +170,7 @@ function App() {
     const options = {
       method: 'GET',
       headers: {
-        'x-rapidapi-key': '42a9fe9fa2msh8eaebbf9ccf1c57p13e6c1jsn588ebcc3a584',
+        'x-rapidapi-key': '85626f9ab9mshf18d6f11f90b5dap1b6e96jsn22e0ab356e24',
         'x-rapidapi-host': 'apidojo-hm-hennes-mauritz-v1.p.rapidapi.com'
       }
     };
@@ -109,14 +180,18 @@ function App() {
         const res = el as ProductResult;
         const elem = res.articles[0];
         //console.log(res.mainCategoryCode, getCategoryFromApi(res.mainCategoryCode));
-        return new Product(elem.code, elem.name, `Description of ${elem.name}`, elem.whitePrice.value, elem.images[0].baseUrl, getCategoryFromApi(res.mainCategoryCode, apiCategories)?.CatName as string, index < 4 || res.sale);
+        return new Product(elem.code, elem.name, `Description of ${elem.name}`, elem.whitePrice.value, elem.images.map((el) => el.baseUrl).concat(res.galleryImages.map((el) => el.baseUrl)), getCategoryFromApi(res.mainCategoryCode, apiCategories)?.CatName as string, index < 4 || res.sale);
       });
       setProducts(productsFromData as Product[]);
       setProductsCount(data.pagination.totalNumberOfResults);
     };
-    fetchData(url,afterFetchProducts as unknown as (data: unknown) => void, (err) => err, options);
-
-  }, [page, perPage])
+    if (!ignore && !code) { // fetch if only code is undefined, ie. not in product detail
+      setLoadingProducts(true);
+      fetchData(url,afterFetchProducts as unknown as (data: unknown) => void, (err) => err, options);
+      setLoadingProducts(false);
+    }
+    return () => {ignore = true;}
+  }, [page, perPage, code])
   // determine automatically if new product item is already in the cart (when cartProducts and / or newItemInCart variables have changed)
   useEffect(() => {
     const indInCart = cartProducts.findIndex((product) => product.productid === newItemInCart?.productid);
@@ -175,6 +250,10 @@ function App() {
       }
     }
   }
+  // update localStorage for cart items
+  useEffect(() => {
+    localStorage.setItem('cartItems', JSON.stringify(cartProducts));
+  }, [cartProducts]);
   // saves a new item to cart
   const saveNewItem = (numOfItems: number, size: Size, prodForCart: Product = newItemInCart as Product) => {
     console.log('newAlreadyInCart', newAlreadyInCart);
@@ -224,7 +303,7 @@ function App() {
           element={ <ProductsPage products={products} onAdd={addToCart} onRemove={removeProductFromCart} acceptPage={acceptPageChange} productsCount={productsCount}
                       currentPage={page} perPage={perPage} loadingProducts={loadingProducts} /> }
         >
-          <Route path="/products/:productId" element={<ProductPage fetchData={fetchData} loadingProduct={loadingProducts}></ProductPage>} />
+          <Route path="/products/:productId" element={<ProductPage acceptProductCode={acceptProductCode} loadingProduct={loadingProduct} product={product as Product} apiRequestsRemaining={remainingApiRequests}></ProductPage>} />
         </Route>
         <Route
           path="/cart"

@@ -41,7 +41,7 @@ const CartItem = (props: CartItemProps) => {
 
     return (
         <>
-            <div className="cart-item-image"><div style={{backgroundImage: `url("${item.image}")`}}></div></div>
+            <div className="cart-item-image"><div style={{backgroundImage: `url("${item.images[0]}")`}}></div></div>
             <div className="cart-item-data">
                 <h3 style={{textAlign: 'center'}}>
                     {newItem && <MdShoppingCartCheckout style={{fontSize: '25pt'}} />} { (newItem ? <span> New cart item - please select size: <select onChange={handleSelect} value={sizeOnNew}>

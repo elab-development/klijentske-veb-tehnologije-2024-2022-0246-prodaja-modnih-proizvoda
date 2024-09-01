@@ -1,35 +1,28 @@
 import { useEffect/*, useState*/ } from "react";
 import { useParams } from "react-router-dom"
+import { Product } from "../models/productModel";
 //import { Product } from "../models/productModel";
 
 interface ProductPageProps {
-    fetchData: (url: string, callback: (data: unknown) => void, onErr: (e: unknown) => void, options: object ) =>  void;
+    acceptProductCode: (code: number | string) => void;
     loadingProduct: boolean;
+    product: Product;
+    apiRequestsRemaining: number;
 }
 
-const ProductPage = ({fetchData, loadingProduct}: ProductPageProps) => {
+const ProductPage = ({acceptProductCode, loadingProduct, product, apiRequestsRemaining}: ProductPageProps) => {
     const params = useParams();
-    const productId = params.productId;
+
     //const [product, setProduct] = useState<Product | undefined>(undefined);
 
-    const processProductDetails = () => {};
-
-    useEffect(() => {
-        const url = 'https://apidojo-hm-hennes-mauritz-v1.p.rapidapi.com/products/detail?lang=en&country=us&productcode=0839915011';
-        const options = {
-        method: 'GET',
-            headers: {
-                'x-rapidapi-key': '42a9fe9fa2msh8eaebbf9ccf1c57p13e6c1jsn588ebcc3a584',
-                'x-rapidapi-host': 'apidojo-hm-hennes-mauritz-v1.p.rapidapi.com'
-            }
-        };
-        fetchData(url, processProductDetails, (e) => e, options);
-    })
+    useEffect(() => acceptProductCode(params.productId as string), [params.productId, acceptProductCode]);
+    //useEffect(() => acceptPage(loaderData.page, loaderData.perPage), [loaderData.page, loaderData.perPage, acceptPage]);
     
     return (
-        <div style={{color: 'black'}}>{loadingProduct ? (<p>Loading product {productId} data, please wait...</p>) : (
+        <div style={{color: 'black'}}>{loadingProduct ? (<p>Loading product {params.productId} data, please wait...</p>) : (
             <div>
-
+                <p>{JSON.stringify(product)}</p>
+                <p>API requests remaining (this month): {apiRequestsRemaining}</p>
             </div>
         )}</div>
     )

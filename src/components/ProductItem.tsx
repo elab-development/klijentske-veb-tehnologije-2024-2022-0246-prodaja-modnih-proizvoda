@@ -14,7 +14,7 @@ interface ProductItemProps {
 const ProductItem: React.FC<ProductItemProps> = ({product, onAdd}) => {
     const navigate = useNavigate();
     return (
-        <div className="product-item" style={{backgroundImage: `url('${product.image}')`}} onClick={() => navigate(`/products/${product.productid}`)}>
+        <div className="product-item" style={{backgroundImage: `url('${product.images[0]}')`}} onClick={() => navigate(`/products/${product.productid}`)}>
             <IconContext.Provider value={{ size: "1.5em", color: "white" }}>
                 <div className="pi-menu">
                     <div className="pi-price">$ {product.price}</div>

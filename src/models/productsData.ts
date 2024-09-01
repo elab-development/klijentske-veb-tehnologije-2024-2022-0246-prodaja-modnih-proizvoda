@@ -141,3 +141,75 @@ export interface ProductResults {
     showSizeFilter: boolean;
     rangeFacets: RangeFacet[];
 }
+
+/** Product Details */
+
+export interface DetailsPrice {
+    price: number;
+    currency: string;
+    referenceFlag: boolean;
+    startDate: number;
+    endDate:number;
+}
+
+export interface DetailsColor {
+    code: string;
+    text: string;
+    rgbColor: string;
+}
+
+export interface LengthCollectionItem {
+    code: string;
+    value: string[];
+}
+
+export interface ProductCategory {
+    name: string;
+    code: string;
+}
+
+export interface ProductDetails {
+    code: string;
+    name: string;
+    description: string;
+    sapProductName: string;
+    color: DetailsColor;
+    whitePrice: DetailsPrice;
+    redPrice: DetailsPrice;
+    priceType: string;
+    measurements: string[];
+    assortmentTypeKey: string;
+    lengthCollection: LengthCollectionItem[];
+    fits: string[];
+    showPriceMarker: boolean;
+    sapSalesMode: string;
+    baseProductCode: string;
+    ancestorProductCode:string;
+    mainCategory: ProductCategory;
+    supercategories: ProductCategory[];
+    constructionDescr: string;
+    customerGroup: string;
+    functions: string[]; /** what */
+    newArrival: boolean;
+    articlesList: ProductArticle[]; /** not quite the same!! */
+    inStock: boolean;
+    productUrl: string;
+    swatchesType: string;
+    rootCategoryPath: string;
+    productKey: string;
+    productCountryOfProduction: string;
+    showGarmentsInfo: boolean;
+    yearOfProduction: string;
+    complianceMarkers: string[];
+    styleCollection: string[];
+    presentationTypes: string;
+    presentationTypesCode: string;
+    newProduct: boolean;
+    multipack: boolean;
+}
+
+
+export interface ProductDetailsResult {
+    responseStatusCode: string;
+    product: ProductDetails;
+}

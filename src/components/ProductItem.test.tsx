@@ -16,7 +16,7 @@ describe('Test ProductItem component', () => {
     const testImageUrlPart = '03611306330-e1.jpg';
     const testPrice = 30;
     const testProductId = 11;
-    const testProduct: Product = new Product(testProductId, "Pro 11", "Product 11", testPrice, testImageUrlPart, "Dresses", false);
+    const testProduct: Product = new Product(testProductId, "Pro 11", "Product 11", testPrice, [testImageUrlPart], "Dresses", false);
 
     // mock functions performing logic in the App context
     const mockedOnAdd = vi.fn();

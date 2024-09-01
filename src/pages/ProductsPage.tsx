@@ -10,7 +10,7 @@ import { useChangeLocationListener } from "../hooks/useChangeLocationListener";
 export type FilterOperation = "eq" | "lt" | "le" | "gt" | "ge" | "in" | "bw";
 export type FilterData = ObjectKeysFromEnum<Product, {operation: FilterOperation, values: string[] | number[]}>
 
-interface ProductPageProps {
+interface ProductsPageProps {
     products: Product[];
     /* lifted-up properties to App */
     onAdd: (productId: number | string) => void;
@@ -22,7 +22,7 @@ interface ProductPageProps {
     loadingProducts: boolean;
 }
 
-function ProductsPage(props: ProductPageProps) {
+function ProductsPage(props: ProductsPageProps) {
     const params = useParams();
     const navigate = useNavigate();
     useChangeLocationListener(() => {window.scrollTo(0,0); /*console.log('scrollY', window.scrollY)*/});

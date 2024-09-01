@@ -31,7 +31,7 @@ const FilterByCategory: React.FC<FilterByCategoryProps> = ({products, direction,
         <div className="by-categories" style={{flexDirection: direction, backgroundColor: direction === 'column' ? "transparent" : "#BBA99A"}}>
             {direction !== 'column' && <div className={ selectedCat === '' ? 'selectedCat' : undefined} onClick={() => {removeFromFilter('category'); setSelectedCat('');}}><MdMenu/></div>}
             {uniqueCategories.map((categ) => (
-                <div key={categ} className={ selectedCat === categ ? 'selectedCat' : undefined} onClick={() => {addToFilter("category", {operation: "eq", values: [categ as string]}); setSelectedCat(categ as string);}}>{categ}</div>
+                <div key={categ || 'nullKey'} className={ selectedCat === categ ? 'selectedCat' : undefined} onClick={() => {addToFilter("category", {operation: "eq", values: [categ as string]}); setSelectedCat(categ as string);}}>{categ}</div>
             ))}
         </div>
     )
