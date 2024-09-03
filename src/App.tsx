@@ -218,6 +218,13 @@ function App() {
       //setNewItemInCart(null);
     }
   }
+  // add product from product details page as new item, with specified size and 1 as default amount
+  const addProductToCart = (product : Product, size: Size | undefined, amount = 1) => {
+    if (size !== undefined) {
+      product.addToCart(amount, size);
+    }
+    setNewItemInCart(product);
+  }
   // removes all sizes of a product from cart
   const removeProductFromCart = (productId: number | string) => {
     const cartItems: Product[] = [...cartProducts];
@@ -303,7 +310,10 @@ function App() {
           element={ <ProductsPage products={products} onAdd={addToCart} onRemove={removeProductFromCart} acceptPage={acceptPageChange} productsCount={productsCount}
                       currentPage={page} perPage={perPage} loadingProducts={loadingProducts} /> }
         >
-          <Route path="/products/:productId" element={<ProductPage acceptProductCode={acceptProductCode} loadingProduct={loadingProduct} product={product as Product} apiRequestsRemaining={remainingApiRequests}></ProductPage>} />
+          <Route path="/products/:productId"
+            element={<ProductPage
+                        acceptProductCode={acceptProductCode} loadingProduct={loadingProduct} product={product as Product}
+                        addToCart={addProductToCart} apiRequestsRemaining={remainingApiRequests}></ProductPage>} />
         </Route>
         <Route
           path="/cart"
