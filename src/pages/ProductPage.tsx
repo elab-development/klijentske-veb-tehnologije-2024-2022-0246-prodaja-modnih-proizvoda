@@ -6,6 +6,7 @@ import ImageGallery from "react-image-gallery";
 import "react-image-gallery/styles/css/image-gallery.css";
 import { MdOutlineFavorite, MdStar, MdStarBorder } from "react-icons/md";
 import Rating from 'react-rating';
+import './ProductPage.css';
 
 interface ProductPageProps {
     acceptProductCode: (code: number | string) => void;
@@ -31,20 +32,19 @@ const ProductPage = ({acceptProductCode, loadingProduct, product, addToCart, api
     return (
         <div style={{color: 'black'}}>{loadingProduct ? (<p>Loading product {params.productId} data, please wait...</p>) : product && (
             <div>
-                <p>{JSON.stringify(product)}</p>
                 <div className="product-details">
                     <div className="image-gallery">
                         <ImageGallery
                             items={product.images.map((el) => {
-                                return {original: el, thumbnail: el, originalWidth: 1000, originalHeight: 600, thumbnailWidth: 250, thumbnailHeight: 150};
+                                return {original: el, thumbnail: el, originalWidth: 800, originalHeight: 600, thumbnailWidth: 200, thumbnailHeight: 150};
                             })}
                             thumbnailPosition="left"
                             showNav={false}
                         />
                     </div>
                     <div className="product-basic">
-                        <div className="product-name">{product.name}</div>
-                        <div className="product-price">{product.price}</div>
+                        <div className="product-name"><div>{product.name}</div></div>
+                        <div className="product-price"><div>$ {product.price}</div></div>
                         <div className="product-rating"><Rating stop={10} step={2} fractions={2} emptySymbol={<MdStarBorder />} fullSymbol={<MdStar />}/></div>
                         <div className="select-size">
                             <select onChange={handleSelect} value={size}>
@@ -53,16 +53,21 @@ const ProductPage = ({acceptProductCode, loadingProduct, product, addToCart, api
                             </select>
                         </div>
                         <div className="to-cart">
-                            <div className="add-to-cart"><a onClick={(event) => {event.stopPropagation();addToCart(product, size); navigate("/cart"); window.scrollTo(0,0);}}>Add to cart</a></div>
-                            <div className="fav" onClick={(event) => {event.stopPropagation()/* extra logic for favourites */}}><MdOutlineFavorite/></div>
+                            <div>
+                                <div className="add-to-cart"><a onClick={(event) => {event.stopPropagation();addToCart(product, size); navigate("/cart"); window.scrollTo(0,0);}}>Add to cart</a></div>
+                            </div>
+                            <div>
+                                <div className="fav" onClick={(event) => {event.stopPropagation()/* extra logic for favourites */}}><MdOutlineFavorite/></div>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div className="desc-avail">
-                    <div className="product-desc">{product.description}</div>
+                    <div className="product-desc"><h2>Description</h2><div>{product.description}</div></div>
                     <div className="product-avail">
+                        <h2>Availability</h2>
                         <select>
-                            <option value={0}>Select store..</option>
+                            <option value={0}>Select store...</option>
                             <option value={1}>Store 1</option>
                             <option value={2}>Store 2</option>
                         </select>
