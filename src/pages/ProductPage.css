@@ -110,3 +110,13 @@
     font-size: 3.5vh;
     height: 4.5vh;
 }
+
+.similar-products > div {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.similar-products > h2 {
+    text-align: center;
+}

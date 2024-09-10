@@ -7,16 +7,19 @@ import "react-image-gallery/styles/css/image-gallery.css";
 import { MdOutlineFavorite, MdStar, MdStarBorder } from "react-icons/md";
 import Rating from 'react-rating';
 import './ProductPage.css';
+import ProductItem from "../components/ProductItem";
 
 interface ProductPageProps {
     acceptProductCode: (code: number | string) => void;
     loadingProduct: boolean;
     product: Product;
-    addToCart: (product: Product, size?: Size, amount?: number) => void;
+    addToCart: (productId: number | string, size?: Size, amount?: number) => void;
+    products: Product[];
+    onRemove: (productId: number | string) => void;
     apiRequestsRemaining: number;
 }
 
-const ProductPage = ({acceptProductCode, loadingProduct, product, addToCart, apiRequestsRemaining}: ProductPageProps) => {
+const ProductPage = ({acceptProductCode, loadingProduct, product, addToCart, products, onRemove, apiRequestsRemaining}: ProductPageProps) => {
     const params = useParams();
     const navigate = useNavigate();
 
@@ -27,6 +30,30 @@ const ProductPage = ({acceptProductCode, loadingProduct, product, addToCart, api
     const handleSelect = (ev: React.ChangeEvent<HTMLSelectElement>)  => {
         const value = ev.target.value;
         if (value === "0") {setSize(undefined);} else {setSize(value as Size);}
+    }
+
+    // calculate similarProducts for product page when products and product data are ready
+    let similarProducts: Product[] = [];
+    if (products && product) {
+        similarProducts = products.filter((el) => {
+            if (!product) return false;
+            return (el.category === product.category) && (el.productid !== product.productid); 
+        });
+        const countOfSP = similarProducts.length;
+        if (countOfSP < 4) {
+            //find more - add first 4 - countofSP of a different category
+            let i = 4 - countOfSP, j = 0;
+            while (i > 0 && j < products.length) {
+                if (products[j].category !== product.category) {
+                    similarProducts.push(products[j]);
+                    i--;
+                }
+                j++;
+            }
+        } else if (countOfSP > 4) {
+            //take first four
+            similarProducts.splice(4, countOfSP - 4);
+        }
     }
     
     return (
@@ -54,7 +81,7 @@ const ProductPage = ({acceptProductCode, loadingProduct, product, addToCart, api
                         </div>
                         <div className="to-cart">
                             <div>
-                                <div className="add-to-cart"><a onClick={(event) => {event.stopPropagation();addToCart(product, size); navigate("/cart"); window.scrollTo(0,0);}}>Add to cart</a></div>
+                                <div className="add-to-cart"><a onClick={(event) => {event.stopPropagation();console.log('prod', product);addToCart(product.productid, size); navigate("/cart"); window.scrollTo(0,0);}}>Add to cart</a></div>
                             </div>
                             <div>
                                 <div className="fav" onClick={(event) => {event.stopPropagation()/* extra logic for favourites */}}><MdOutlineFavorite/></div>
@@ -74,8 +101,14 @@ const ProductPage = ({acceptProductCode, loadingProduct, product, addToCart, api
                     </div>
                 </div>
                 <div className="similar-products">
+                    <h2>Similar products</h2>
+                    <div>
+                        {similarProducts.map((product) => (
+                            <div key={product.productid} style={{padding: "1vh 1vw"}}><ProductItem product={product} onAdd={addToCart} onRemove={onRemove}/></div>
+                        ))}
+                    </div>
                 </div>
-                <p>API requests remaining (this month): {apiRequestsRemaining}</p>
+                <p style={{textAlign: 'center'}}>API requests remaining (this month): {apiRequestsRemaining}</p>
             </div>
         )}</div>
     )

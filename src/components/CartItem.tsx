@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 interface CartItemProps {
     item: Product;
     new: boolean;
+    initNewCartItemSize: Size | null;
     saveNewItem: (numOfItems: number, size: Size, item?: Product) => void;
     removeProductFromCart: (productid: number | string) => void;
     removeSizeFromCart: (productid: number | string, size: Size) => void;
@@ -13,7 +14,8 @@ interface CartItemProps {
 
 const CartItem = (props: CartItemProps) => {
     const newItem = props.new;
-    const [sizeOnNew, setSizeOnNew] = useState<Size | "0">("0");
+    const initNewItemSize = props.initNewCartItemSize;
+    const [sizeOnNew, setSizeOnNew] = useState<Size | "0">(initNewItemSize ? initNewItemSize : "0");
     const [amount, setAmount] = useState(1);
     const [item, setItem] = useState<Product>(props.item);
     
@@ -36,7 +38,7 @@ const CartItem = (props: CartItemProps) => {
     }
 
     useEffect(() => {
-        setItem(props.item);
+        setItem(() => props.item);
     }, [props.item])
 
     return (

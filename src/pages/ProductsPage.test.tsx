@@ -34,7 +34,7 @@ describe('Test ProductsPage page component with mocked API response server', () 
         const data = await response.json();
         const products = data.products.map((el: unknown) => {
             const elem = el as Product;
-            return new Product(elem.productid, elem.name, elem.description, elem.price, elem.image, elem.category, elem.recommended);
+            return new Product(elem.productid, elem.name, elem.description, elem.price, elem.images, elem.category, elem.recommended);
         });
         const productsCount = data.count;
         render(<ProductsPage products={products} currentPage={1} perPage={16} productsCount={productsCount} onAdd={mockedOnAdd} onRemove={mockedOnRemove} acceptPage={mockedAcceptPage} loadingProducts={loading} />);

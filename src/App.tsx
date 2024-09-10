@@ -37,6 +37,7 @@ function App() {
   const [cartProducts, setCartProducts] = useState<Product[]>(ci); // products in the cart
   const [newItemInCart, setNewItemInCart] = useState<Product | null>(null);
   const [newAlreadyInCart, setNewAlreadyInCart] = useState(-1); // to have info in time - when shown in the cart - about if a new cart item product is already in the cart
+  const [initNewCartItemSize, setInitNewCartItemSize] = useState<Size | null>(null); // initial product size, taken from product page, for a new cart item on the cart 
   // products
   const [products, setProducts] = useState<Product[]>([]); // products from one page, obtained from server
   const [productsCount, setProductsCount] = useState(0); // total number of products in the store - in order to calculate max number of pages
@@ -51,6 +52,7 @@ function App() {
 
   const defferedProducts = useDeferredValue(products);
   const defferedCode = useDeferredValue(code);
+  const defferedPage = useDeferredValue(page);
 
   interface apiCategories {
     CatName?: string;
@@ -124,8 +126,8 @@ function App() {
         const afterFetchProduct = (data: ProductDetailsResult, headers: Headers) => {
           if (data.responseStatusCode === "ok") {
             const productDetails = data.product;
-            const prod = products.find<Product>((el) => {
-              return el.productid === productDetails.code;
+            const prod = products.find((el) => {
+              return (el.productid === productDetails.code);
             });
             if (prod) {
               prod.description = productDetails.description;
@@ -150,7 +152,7 @@ function App() {
 
   // processing products on page from server
   useEffect(() => {
-    let ignore = false; // to save API requests in development mode 
+    let ignore = false; // to spare API requests in development mode 
     const getCategoryFromApi = (tag: string, obj: apiCategories, level = 1, separator = "_") => {
       if(!obj || obj.tagCodes?.includes(tag)) return obj;
       
@@ -185,13 +187,13 @@ function App() {
       setProducts(productsFromData as Product[]);
       setProductsCount(data.pagination.totalNumberOfResults);
     };
-    if (!ignore && !code) { // fetch if only code is undefined, ie. not in product detail
+    if (!ignore && (!code || (defferedPage != page))) { // fetch sparingly regarding API requests
       setLoadingProducts(true);
       fetchData(url,afterFetchProducts as unknown as (data: unknown) => void, (err) => err, options);
       setLoadingProducts(false);
     }
     return () => {ignore = true;}
-  }, [page, perPage, code])
+  }, [page, perPage, defferedPage, defferedCode, code])
   // determine automatically if new product item is already in the cart (when cartProducts and / or newItemInCart variables have changed)
   useEffect(() => {
     const indInCart = cartProducts.findIndex((product) => product.productid === newItemInCart?.productid);
@@ -202,28 +204,12 @@ function App() {
     setCartNum(cartProducts.length);
   }, [cartProducts])
   // add product as new item to (specify amount and size and) be saved in the cart 
-  const addToCart = (productId: number | string, amount = 1, size: Size | null = null) => {
-    const cInd = cartProducts.findIndex((val) => val.productid === productId);
-    if (size == null) { // new item in cart
-      if (cInd === -1) {
-        const pInd = products.findIndex((val) => val.productid === productId);
-        setNewItemInCart(products[pInd]);
-      } else {
-        setNewItemInCart(cartProducts[cInd]);
-      }
-    } else { // not used
-      //products[pInd].addToCart(amount, size);
-      const pInd = products.findIndex((val) => val.productid === productId);
-      saveNewItem(amount,size,products[pInd]);
-      //setNewItemInCart(null);
+  const addToCart = (productId: number | string/*, amount = 1*/, size: Size | null = null) => {
+    if (size != null) { // new item in cart
+      setInitNewCartItemSize(size);
     }
-  }
-  // add product from product details page as new item, with specified size and 1 as default amount
-  const addProductToCart = (product : Product, size: Size | undefined, amount = 1) => {
-    if (size !== undefined) {
-      product.addToCart(amount, size);
-    }
-    setNewItemInCart(product);
+    const pInd = products.findIndex((val) => val.productid === productId);
+    setNewItemInCart({...products[pInd]});
   }
   // removes all sizes of a product from cart
   const removeProductFromCart = (productId: number | string) => {
@@ -261,6 +247,39 @@ function App() {
   useEffect(() => {
     localStorage.setItem('cartItems', JSON.stringify(cartProducts));
   }, [cartProducts]);
+  // remove value from initNewCartItemSize if has come from /cart
+  useEffect(() => {
+    const prevUrl = new URL(document.referrer);
+    if (prevUrl.href.indexOf('/cart') > -1) {
+      setInitNewCartItemSize(null);
+    }
+  }, [setInitNewCartItemSize]);
+  
+  /*useEffect(() => {
+    if (products && product) {
+      const similarProducts: Product[] = products.filter((el) => {
+          if (!product) return false;
+          return (el.category === product.category) && (el.productid !== product.productid); 
+      });
+      const countOfSP = similarProducts.length;
+      if (countOfSP < 4) {
+          //find more - add first 4 - countofSP of a different category
+          let i = 4 - countOfSP, j = 0;
+          while (i > 0 && j < products.length) {
+              if (products[j].category !== product.category) {
+                  similarProducts.push(products[j]);
+                  i--;
+              }
+              j++;
+          }
+      } else if (countOfSP > 4) {
+          //take first four
+          similarProducts.splice(4, countOfSP - 4);
+      }
+    } else {
+      
+    }
+  }) */
   // saves a new item to cart
   const saveNewItem = (numOfItems: number, size: Size, prodForCart: Product = newItemInCart as Product) => {
     console.log('newAlreadyInCart', newAlreadyInCart);
@@ -274,7 +293,8 @@ function App() {
       //setCartNum(cartProds.length); changes automatically
     }
     setNewItemInCart(null);
-    console.log('products: ', products, 'cart items:', cartProducts);
+    setInitNewCartItemSize(null);
+    //console.log('products: ', products, 'cart items:', cartProducts);
   }
   // callback when the server response about user's promo code submission arrives
   const onPromoResponse = (data: unknown) => {
@@ -313,7 +333,8 @@ function App() {
           <Route path="/products/:productId"
             element={<ProductPage
                         acceptProductCode={acceptProductCode} loadingProduct={loadingProduct} product={product as Product}
-                        addToCart={addProductToCart} apiRequestsRemaining={remainingApiRequests}></ProductPage>} />
+                        addToCart={addToCart} apiRequestsRemaining={remainingApiRequests} products={products}
+                        onRemove={removeProductFromCart}></ProductPage>} />
         </Route>
         <Route
           path="/cart"
@@ -321,7 +342,7 @@ function App() {
             <Cart
               cartProducts={cartProducts} newItemInCart={newItemInCart} saveNewItem={saveNewItem}
               removeProductFromCart={removeProductFromCart} removeSizeFromCart={removeSizeFromCart}
-              processPromo={applyPromoCode} savingsObj={savings} removePromoCode={removePromoCode} />
+              processPromo={applyPromoCode} savingsObj={savings} removePromoCode={removePromoCode} initNewCartItemSize={initNewCartItemSize} />
           } />
         <Route path="/login" element={<Login loginUser={loginUser}/>} />
         <Route path="*" element={<NoPage />} />

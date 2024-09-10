@@ -9,6 +9,7 @@ import { MdCancelScheduleSend } from "react-icons/md";
 interface CartProps {
     cartProducts: Product[];
     newItemInCart: Product | null;
+    initNewCartItemSize: Size | null;
     processPromo: (promo: string) => void;
     savingsObj: Savings;
     saveNewItem: (numOfItems: number, size: Size) => void;
@@ -25,6 +26,7 @@ export interface Savings {
 
 function Cart(props: CartProps) {
     const cartItems = props.cartProducts; // products in the cart
+    const initNewCartItemSize = props.initNewCartItemSize;
     const [cartItemsCount, setCartItemsCount] = useState(0); // number of product items of all sizes in the cart
     const [cartItemsPrice, setCartItemsPrice] = useState(0); // total price of purchased items in the cart
     const [promoCode, setPromoCode] = useState(''); // promo code applied (previously approved by server)
@@ -72,14 +74,15 @@ function Cart(props: CartProps) {
     return (
         <div id="cart">
             { newItem && <div id="new-cart-item">
-                <CartItem new item={newItem} saveNewItem={props.saveNewItem} removeProductFromCart={props.removeProductFromCart} removeSizeFromCart={props.removeSizeFromCart} />
+                <CartItem new item={newItem} saveNewItem={props.saveNewItem} removeProductFromCart={props.removeProductFromCart}
+                    removeSizeFromCart={props.removeSizeFromCart} initNewCartItemSize={initNewCartItemSize} />
             </div> }
             <div id="cart-items">
                 {cartItems.length ? (<div id="cart-items-saved"><div>
                     {cartItems.map((item) => (
                         <div key={item.productid} className="cart-item">
                             <CartItem new={false} item={item} saveNewItem={props.saveNewItem}
-                                removeProductFromCart={props.removeProductFromCart} removeSizeFromCart={props.removeSizeFromCart} />
+                                removeProductFromCart={props.removeProductFromCart} removeSizeFromCart={props.removeSizeFromCart} initNewCartItemSize={null} />
                         </div>
                     ))}
                 </div></div>): (<p style={{textAlign: 'center'}}>No items in the cart.</p>)}

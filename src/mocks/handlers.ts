@@ -1,13 +1,13 @@
 import { http, HttpResponse } from 'msw';
 
 const productsPage = {
-    "products": [
+   "products": [
         {
             "productid": 100,
             "name": "Pro 1",
             "description": "Opis Pro 1",
             "price": 30,
-            "image": "3685338802_2_1_0.jpg",
+            "images": ["3685338802_2_1_0.jpg"],
             "category": "Pants",
             "recommended": false,
             "amounts": {
@@ -24,7 +24,7 @@ const productsPage = {
             "name": "Pro 2",
             "description": "Opis Pro 2",
             "price": 25,
-            "image": "7390316306_2_6_0.jpg",
+            "images": ["7390316306_2_6_0.jpg"],
             "category": "Dresses",
             "recommended": false,
             "amounts": {
@@ -41,7 +41,7 @@ const productsPage = {
             "name": "Pro 3",
             "description": "Opis Pro 3",
             "price": 30,
-            "image": "02335153800-016-e1.jpg",
+            "images": ["02335153800-016-e1.jpg"],
             "category": "Sweaters",
             "recommended": false,
             "amounts": {
@@ -58,7 +58,7 @@ const productsPage = {
             "name": "Pro 4",
             "description": "Opis Pro 4",
             "price": 25,
-            "image": "3470338403_2_6_0.jpg",
+            "images": ["3470338403_2_6_0.jpg"],
             "category": "Shirts",
             "recommended": true,
             "amounts": {
@@ -75,7 +75,7 @@ const productsPage = {
             "name": "Pro 5",
             "description": "Opis Pro 5",
             "price": 30,
-            "image": "3685334429_2_6_0.jpg",
+            "images": ["3685334429_2_6_0.jpg"],
             "category": "Jeans",
             "recommended": false,
             "amounts": {
@@ -92,7 +92,7 @@ const productsPage = {
             "name": "Pro 6",
             "description": "Opis Pro 6",
             "price": 25,
-            "image": "3676304800_2_1_0.jpg",
+            "images": ["3676304800_2_1_0.jpg"],
             "category": "Jackets",
             "recommended": false,
             "amounts": {
@@ -109,7 +109,7 @@ const productsPage = {
             "name": "Pro 7",
             "description": "Opis Pro 7",
             "price": 30,
-            "image": "7248374500_2_1_0.jpg",
+            "images": ["7248374500_2_1_0.jpg"],
             "category": "T-shirts",
             "recommended": true,
             "amounts": {
@@ -126,7 +126,7 @@ const productsPage = {
             "name": "Pro 8",
             "description": "Opis Pro 8",
             "price": 25,
-            "image": "7693312800_2_6_0.jpg",
+            "images": ["7693312800_2_6_0.jpg"],
             "category": "Shorts",
             "recommended": true,
             "amounts": {
@@ -143,7 +143,7 @@ const productsPage = {
             "name": "Pro 9",
             "description": "Opis Pro 9",
             "price": 30,
-            "image": "7249301731_2_1_0.jpg",
+            "images": ["7249301731_2_1_0.jpg"],
             "category": "T-shirts",
             "recommended": false,
             "amounts": {
@@ -160,7 +160,7 @@ const productsPage = {
             "name": "Pro 10",
             "description": "Opis Pro 10",
             "price": 25,
-            "image": "02298262800-e1.jpg",
+            "images": ["02298262800-e1.jpg"],
             "category": "Skirts",
             "recommended": true,
             "amounts": {
@@ -177,7 +177,7 @@ const productsPage = {
             "name": "Pro 11",
             "description": "Opis Pro 11",
             "price": 30,
-            "image": "03611306330-e1.jpg",
+            "images": ["03611306330-e1.jpg"],
             "category": "Dresses",
             "recommended": false,
             "amounts": {
@@ -194,7 +194,7 @@ const productsPage = {
             "name": "Pro 12",
             "description": "Opis Pro 12",
             "price": 25,
-            "image": "3241377807_2_1_0.jpg",
+            "images": ["3241377807_2_1_0.jpg"],
             "category": "T-shirts",
             "recommended": false,
             "amounts": {
@@ -211,7 +211,7 @@ const productsPage = {
             "name": "Pro 13",
             "description": "Opis Pro 13",
             "price": 30,
-            "image": "7248339116_2_6_0.jpg",
+            "images": ["7248339116_2_6_0.jpg"],
             "category": "Tops",
             "recommended": false,
             "amounts": {
@@ -228,7 +228,7 @@ const productsPage = {
             "name": "Pro 14",
             "description": "Opis Pro 14",
             "price": 25,
-            "image": "3678362450_2_6_0.jpg",
+            "images": ["3678362450_2_6_0.jpg"],
             "category": "Pants",
             "recommended": false,
             "amounts": {
@@ -245,7 +245,7 @@ const productsPage = {
             "name": "Pro 15",
             "description": "Opis Pro 15",
             "price": 30,
-            "image": "3710351800_2_6_0.jpg",
+            "images": ["3710351800_2_6_0.jpg"],
             "category": "Tops",
             "recommended": false,
             "amounts": {
@@ -262,7 +262,7 @@ const productsPage = {
             "name": "Pro 16",
             "description": "Opis Pro 16",
             "price": 25,
-            "image": "7248339250_2_6_0.jpg",
+            "images": ["7248339250_2_6_0.jpg"],
             "category": "Shirts",
             "recommended": false,
             "amounts": {
