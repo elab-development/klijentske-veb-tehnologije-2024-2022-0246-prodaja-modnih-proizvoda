@@ -247,39 +247,15 @@ function App() {
   useEffect(() => {
     localStorage.setItem('cartItems', JSON.stringify(cartProducts));
   }, [cartProducts]);
-  // remove value from initNewCartItemSize if has come from /cart
+  // remove value from initNewCartItemSize if this page has come from /cart
   useEffect(() => {
-    const prevUrl = new URL(document.referrer);
-    if (prevUrl.href.indexOf('/cart') > -1) {
-      setInitNewCartItemSize(null);
+    if(document.referrer !== '') {
+      const prevUrl = new URL(document.referrer);
+      if (prevUrl.href.indexOf('/cart') > -1) {
+        setInitNewCartItemSize(null);
+      }
     }
   }, [setInitNewCartItemSize]);
-  
-  /*useEffect(() => {
-    if (products && product) {
-      const similarProducts: Product[] = products.filter((el) => {
-          if (!product) return false;
-          return (el.category === product.category) && (el.productid !== product.productid); 
-      });
-      const countOfSP = similarProducts.length;
-      if (countOfSP < 4) {
-          //find more - add first 4 - countofSP of a different category
-          let i = 4 - countOfSP, j = 0;
-          while (i > 0 && j < products.length) {
-              if (products[j].category !== product.category) {
-                  similarProducts.push(products[j]);
-                  i--;
-              }
-              j++;
-          }
-      } else if (countOfSP > 4) {
-          //take first four
-          similarProducts.splice(4, countOfSP - 4);
-      }
-    } else {
-      
-    }
-  }) */
   // saves a new item to cart
   const saveNewItem = (numOfItems: number, size: Size, prodForCart: Product = newItemInCart as Product) => {
     console.log('newAlreadyInCart', newAlreadyInCart);
