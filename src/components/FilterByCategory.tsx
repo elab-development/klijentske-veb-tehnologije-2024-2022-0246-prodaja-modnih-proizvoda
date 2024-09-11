@@ -22,7 +22,7 @@ const FilterByCategory: React.FC<FilterByCategoryProps> = ({products, direction,
             return prod.category;
         })
         const uc = allC.filter((v, i, arr) => {
-            return i == arr.indexOf(v);
+            return v && (i == arr.indexOf(v));
         }); // unique categories remain only
         setUniqueCategories(uc);
     }, [products])
