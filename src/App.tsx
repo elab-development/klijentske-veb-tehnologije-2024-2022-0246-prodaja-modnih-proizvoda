@@ -12,7 +12,7 @@ import { Product, Size } from './models/productModel'
 import Login from './pages/Login'
 import ProductPage from './pages/ProductPage'
 import { ProductDetailsResult, ProductResult, ProductResults } from './models/productsData'
-import apiCategories from './assets/api_categories.json'
+import apiCategories from './assets/api_categories.json' // cashed from a dedicated API call 
 
 function App() {
   // saved in localStorage
@@ -44,6 +44,7 @@ function App() {
   const [page, setPage] = useState(cp);
   const [perPage, setPerPage] = useState(16);
   const [loadingProducts, setLoadingProducts] = useState(false);
+  const [maxPriceOnPage, setMaxPriceOnPage] = useState(50);
   // product data for product page
   const [product, setProduct] = useState<Product | undefined>(undefined);
   const [code, setCode] = useState<number | string | undefined>(undefined); // product code, ie. productId
@@ -184,6 +185,7 @@ function App() {
         //console.log(res.mainCategoryCode, getCategoryFromApi(res.mainCategoryCode));
         return new Product(elem.code, elem.name, `Description of ${elem.name}`, elem.whitePrice.value, elem.images.map((el) => el.baseUrl).concat(res.galleryImages.map((el) => el.baseUrl)), getCategoryFromApi(res.mainCategoryCode, apiCategories)?.CatName as string, index < 4 || res.sale);
       });
+      setMaxPriceOnPage(data.results.reduce((prev, curr) => {if (prev.price.value < curr.price.value) return curr; else return prev;}).price.value);
       setProducts(productsFromData as Product[]);
       setProductsCount(data.pagination.totalNumberOfResults);
     };
@@ -304,7 +306,7 @@ function App() {
           return {page, perPage };
         }}
           element={ <ProductsPage products={products} onAdd={addToCart} onRemove={removeProductFromCart} acceptPage={acceptPageChange} productsCount={productsCount}
-                      currentPage={page} perPage={perPage} loadingProducts={loadingProducts} /> }
+                      currentPage={page} perPage={perPage} loadingProducts={loadingProducts} maxPrice={maxPriceOnPage} /> }
         >
           <Route path="/products/:productId"
             element={<ProductPage

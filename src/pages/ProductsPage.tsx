@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
 import FilterByCategory from "../components/FilterByCategory";
 import ProductItem from "../components/ProductItem";
-import { EnumKeys, ObjectKeysFromEnum, Product } from "../models/productModel";
+import { EnumKeys, Product } from "../models/productModel";
 import './ProductsPage.css';
 import { Outlet, useLoaderData, useNavigate, useParams } from "react-router-dom";
 import Pagination from "../components/Pagination";
 import { useChangeLocationListener } from "../hooks/useChangeLocationListener";
+import { ClientFilter, FilterCriteria, FilterOperation } from "../models/clientFilterModel";
+import { useReactState } from "../hooks/useReactState";
 
-export type FilterOperation = "eq" | "lt" | "le" | "gt" | "ge" | "in" | "bw";
-export type FilterData = ObjectKeysFromEnum<Product, {operation: FilterOperation, values: string[] | number[]}>
+//export type FilterOperation = "eq" | "lt" | "le" | "gt" | "ge" | "in" | "bw";
+//export type FilterData = ObjectKeysFromEnum<Product, {operation: FilterOperation, values: string[] | number[]}>
 
 interface ProductsPageProps {
     products: Product[];
@@ -19,8 +21,11 @@ interface ProductsPageProps {
     currentPage: number;
     perPage: number;
     productsCount: number;
+    maxPrice: number;
     loadingProducts: boolean;
 }
+
+const filtObj = new ClientFilter<Product>(undefined);
 
 function ProductsPage(props: ProductsPageProps) {
     const params = useParams();
@@ -40,93 +45,43 @@ function ProductsPage(props: ProductsPageProps) {
         acceptPage(loaderData.page, loaderData.perPage);
     }, [loaderData.page, loaderData.perPage, acceptPage])
 
-/* client-side filtering - in web browser - and update products page */
-const [filter, setFilter] = useState<FilterData | undefined>(undefined); // client-side filter of a product page
-const [maxPrice, setMaxPrice] = useState(50); // maxPrice to be included into a corresponding filter item
-const [filteredProducts, setFilteredProducts] = useState([]/*products*/); // products that are filtered to be displayed on products page
-const [selectedCat, setSelectedCat] = useState(''); // selected category for filter - to mark it in FilterByCategory component
-    // callback on max price range change
-const handleRangeChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    const val = ev.target.value;
-    setMaxPrice(Number(val));
-    // addFilter here instead of a separate useEffects, because maxPrice is expected to be changed only here, and addFilter is used from within FilterByCategories comp.
-    addFilter("price", {operation: "le", values: [Number(val)]}); // val umesto maxPrice, jer ne stize da azurira interfejs prema novom maxPrice
-}
-// handle selectedCat change
-const handleCatChange = ( categ: string) => {
-    setSelectedCat(categ);
-    if (params.productId) {
-        navigate('/products');
-        //history.back();
+    /* client-side filtering - in web browser - and update products page */
+    const filtProxy = useReactState<ClientFilter<Product>>(filtObj); // client-side filter of a product page
+    const [maxPrice, setMaxPrice] = useState(props.maxPrice); // maxPrice to be included into a corresponding filter item
+    const [filteredProducts, setFilteredProducts] = useState<Product[]>([]/*products*/); // products that are filtered to be displayed on products page
+    const [selectedCat, setSelectedCat] = useState(''); // selected category for filter - to mark it in FilterByCategory component
+        // callback on max price range change
+    const handleRangeChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
+        const val = ev.target.value;
+        setMaxPrice(Number(val));
+        // addFilter here instead of a separate useEffects, because maxPrice is expected to be changed only here, and addFilter is used from within FilterByCategories comp.
+        filtProxy.addFilter("price", {operation: "le", values: [Number(val)]}); // val instead of maxPrice, because it cannot manage to update interface according to a new maxPrice
     }
-}
-// add new item into filter - all filter items should be true on a specific product item to be filtered and displayed
-const addFilter = (prodProp: EnumKeys<Product>, prod: {operation: FilterOperation, values: string[] | number[]}) => {
-    let filtNewItem : FilterData | undefined;
-    if (filter !== undefined ) {
-        filtNewItem = { ...filter, [prodProp]: prod};
-    } else {
-        filtNewItem = { [prodProp]: prod } as unknown as FilterData;
-    }
-    setFilter(filtNewItem);
-    console.log('filter', filter);
-}
-// remove filter item (regarding one of a product property) from filter
-const removeFromFilter = (prodProp: EnumKeys<Product>) => {
-    let filtNew : FilterData | undefined;
-    if (filter !== undefined ) {
-        filtNew = { ...filter };
-        delete filtNew[prodProp];
-    }
-    setFilter(filtNew);
-}
-// automatically set filtered products according to (changes in) products on page and filter data
-useEffect(() => {
-    setFilteredProducts(products.filter((prod) => {
-        if (filter !== undefined) {
-            let acceptProd = true;
-            const prodKeys = Object.keys(filter as object);
-            for(const prodKey of prodKeys) {
-                const filtItem = filter ? filter[prodKey as EnumKeys<Product>]: {operation: 'le', values: [0]} /* just to be type-safe */;
-                const oper = filtItem.operation as FilterOperation;
-                const values = filtItem.values;
-                const keyValue = prod[prodKey as EnumKeys<Product>];
-                switch(oper) {
-                    case "eq": /* equals */
-                        acceptProd = keyValue == values[0];
-                        break;
-                    case "ge": /* greater than or equal */
-                        acceptProd = keyValue >= values[0];
-                        break;
-                    case "gt": /* greater than */
-                        acceptProd = keyValue > values[0];
-                        break;
-                    case "le": /* less than or equal */
-                        acceptProd = keyValue <= values[0];
-                        break;
-                    case "lt": /* less than */
-                        acceptProd = keyValue < values[0];
-                        break;
-                    case "in": /* in array of values */
-                        acceptProd = values.includes(keyValue as never);
-                        break;
-                    case "bw": /* in range - between min and max value */
-                        acceptProd = (keyValue >= values[0]) && (keyValue <= values[1]);
-                        break;
-                    default:
-                        acceptProd = false;
-                }
-                if (!acceptProd) {
-                    break; // exit for
-                }
-            }
-            return acceptProd;
-        } else {
-            return true; // take every product if no filter
+    // handle selectedCat change
+    const handleCatChange = ( categ: string) => {
+        setSelectedCat(categ);
+        if (params.productId) {
+            navigate('/products');
+            //history.back();
         }
-    }) as never[])
-}, [products, filter]);
-/* end - client-side products filter */
+    }
+    // add new item into filter - all filter items should be true on a specific product item to be filtered and displayed
+    const addFilter = (prodProp: EnumKeys<Product>, prod: {operation: FilterOperation, values: FilterCriteria}) => {
+        filtProxy.addFilter(prodProp, prod);
+        //console.log('filter', filter);
+    }
+    // remove filter item (regarding one of a product property) from filter
+    const removeFromFilter = (prodProp: EnumKeys<Product>) => {
+        filtProxy.removeFromFilter(prodProp);
+        //setFilter(filtObj.filterItems);
+    }
+    // automatically set filtered products according to (changes in) products on page and filter data
+    useEffect(() => {
+        console.log('filter',filtProxy.filterItems);
+        const filt = filtProxy.applyFilter(products);
+        setFilteredProducts(filt);
+    }, [products, filtProxy, filtProxy.filterItems]);
+    /* end - client-side products filter */
     
     return (
         <div id="products-page">
@@ -144,7 +99,7 @@ useEffect(() => {
                     </div>
                     <label htmlFor="price-range">
                         <p className="filter-dim">Price:</p>
-                        <input id="price-range" type="range" max={50} value={maxPrice} onChange={handleRangeChange} />
+                        <input id="price-range" type="range" max={props.maxPrice} value={maxPrice} onChange={handleRangeChange} />
                         <p style={{textAlign: 'center'}}>less than or equals {maxPrice}</p>
                     </label>
                 </div>

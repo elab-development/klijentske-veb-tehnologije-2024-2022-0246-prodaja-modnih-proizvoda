@@ -8,8 +8,14 @@ export type ObjectKeysFromEnum<T, P> = {
     [K in EnumKeys<T>]: P; // P is the desired type of the object's properties
 };
 
-
-export class Product {
+interface Rating {
+    rating: {
+        rate: number;
+        votesCount: number;
+    };
+    newVote: (vote: number) => void; 
+}
+export class Product implements Rating {
     productid: number | string;
     name: string;
     description: string;
