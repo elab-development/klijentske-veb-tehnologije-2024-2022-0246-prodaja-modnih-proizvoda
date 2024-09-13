@@ -2,17 +2,22 @@ import { describe, expect, it, vi } from "vitest";
 import ProductsPage from "./ProductsPage";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { Product } from "../models/productModel";
+//qimport { Outlet } from "react-router-dom";
 
 // useNavigate from Pagination.tsx and useLoaderData from ProductsPage should be mocked at the top level of this file
 const mockedUseNavigate = vi.fn();
 const mockedUseLoadData = vi.fn();
 const mockedUseLocation = vi.fn();
+const mockedUseParams = vi.fn();
+const mockedOutlet = vi.fn();
 
 vi.mock('react-router-dom', () => ({
    ...vi.importActual('react-router-dom') as Promise<unknown>,
   useNavigate: () => mockedUseNavigate,
   useLoaderData: () => mockedUseLoadData,
-  useLocation: () => mockedUseLocation
+  useLocation: () => mockedUseLocation,
+  useParams: () => mockedUseParams,
+  Outlet: () => mockedOutlet()
 }));
 
 describe('Test ProductsPage page component with mocked API response server', () => {
@@ -24,7 +29,7 @@ describe('Test ProductsPage page component with mocked API response server', () 
     const loading = false; // test does not deal with loading phase
 
     it('renders "No products matching your criteria." on empty products response', () => {
-        render(<ProductsPage products={[]} currentPage={1} perPage={16} productsCount={100} onAdd={mockedOnAdd} onRemove={mockedOnRemove} acceptPage={mockedAcceptPage} loadingProducts={loading} />);
+        render(<ProductsPage products={[]} currentPage={1} perPage={16} productsCount={100} onAdd={mockedOnAdd} onRemove={mockedOnRemove} acceptPage={mockedAcceptPage} loadingProducts={loading} maxPrice={50} />);
         const el = screen.queryByText('No products matching your criteria.');
         expect(el).toBeInTheDocument();
     });
@@ -37,7 +42,7 @@ describe('Test ProductsPage page component with mocked API response server', () 
             return new Product(elem.productid, elem.name, elem.description, elem.price, elem.images, elem.category, elem.recommended);
         });
         const productsCount = data.count;
-        render(<ProductsPage products={products} currentPage={1} perPage={16} productsCount={productsCount} onAdd={mockedOnAdd} onRemove={mockedOnRemove} acceptPage={mockedAcceptPage} loadingProducts={loading} />);
+        render(<ProductsPage products={products} currentPage={1} perPage={16} productsCount={productsCount} onAdd={mockedOnAdd} onRemove={mockedOnRemove} acceptPage={mockedAcceptPage} loadingProducts={loading} maxPrice={50} />);
         
         // just checking if API request is intercepted by mocked server - first productId is 100 instead of 1 - along with product item consistency check
         const addToCartLinks = screen.queryAllByText('Add to cart');
